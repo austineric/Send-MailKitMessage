@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2013/05/nuspec.xsd">
+  <metadata minClientVersion="2.12">
+    <id>MailKit</id>
+    <version>2.7.0</version>
+    <title>MailKit</title>
+    <authors>Jeffrey Stedfast</authors>
+    <owners>Jeffrey Stedfast</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <license type="expression">MIT</license>
+    <licenseUrl>https://licenses.nuget.org/MIT</licenseUrl>
+    <icon>icons\mailkit-50.png</icon>
+    <projectUrl>http://www.mimekit.net/</projectUrl>
+    <description>MailKit is an Open Source cross-platform .NET mail-client library that is based on MimeKit and optimized for mobile devices.
+
+Features include:
+* HTTP, Socks4, Socks4a and Socks5 proxy support.
+* SASL Authentication via SCRAM-SHA-256, SCRAM-SHA-1, NTLM, DIGEST-MD5, CRAM-MD5, LOGIN, PLAIN, and XOAUTH2.
+* A fully-cancellable SmtpClient with support for STARTTLS, 8BITMIME, BINARYMIME, ENHANCEDSTATUSCODES, SIZE, DSN, PIPELINING and SMTPUTF8.
+* A fully-cancellable Pop3Client with support for STLS, UIDL, APOP, PIPELINING, UTF8, and LANG.
+* A fully-cancellable ImapClient with support for ACL, QUOTA, LITERAL+, IDLE, NAMESPACE, ID, CHILDREN, LOGINDISABLED, STARTTLS, MULTIAPPEND, UNSELECT, UIDPLUS, CONDSTORE, ESEARCH, SASL-IR, COMPRESS, WITHIN, ENABLE, QRESYNC, SORT, THREAD, ANNOTATE, LIST-EXTENDED, ESORT, METADATA / METADATA-SERVER, NOTIFY, FILTERS, LIST-STATUS, SORT=DISPLAY, SPECIAL-USE / CREATE-SPECIAL-USE, SEARCH=FUZZY, MOVE, UTF8=ACCEPT / UTF8=ONLY, LITERAL-, APPENDLIMIT, STATUS=SIZE, OBJECTID, REPLACE, XLIST, and X-GM-EXT1.
+* Client-side sorting and threading of messages (the Ordinal Subject and the Jamie Zawinski threading algorithms are supported).
+* Asynchronous versions of all methods that hit the network.
+* S/MIME, OpenPGP, DKIM and ARC support via MimeKit.
+* Microsoft TNEF support via MimeKit.</description>
+    <summary>An Open Source .NET mail-client library for Windows, Mac, Linux, and mobile platforms such as iOS and Android.</summary>
+    <releaseNotes>* Added a MessageSummary.Folder property and MessageThread.Message property to allow developers to thread messages from multiple IMAP folders and be able to figure out which folder each message belongs to.
+* Added a work-around for IMAP servers that send a UIDNEXT response with a value of '0'. (issue #1010)
+* Added an IMailFolder.Supports(FolderFeature) method so that developers can check whether a feature is supported by the folder without needing a reference to the corresponding ImapClient object in order to check the Capabilities.
+* Fixed the HTTP proxy client to accept "200 OK" with an empty body as a successful connection. (issue #1015)
+* Fixed the SOCKS5 proxy client to correctly send an authentication request. (issue #1019)
+* Added support for customizable ProtocolLogger client/server prefixes. (issue #1024)
+* Fixed an NRE in SslHandshakeException.Create() when running on Mono/Linux.
+* Modified the SmtpClient to take advantage of the SMTPUTF8 extension for the `MAIL FROM` and `RCPT TO` commands even if a `options.International` is not explicitly set to `true` if any of the mailbox addresses are international addresses. (issue #1026)
+* Added support for a new Important SpecialFolder (rfc8457).
+* Added support for the IMAP REPLACE extension (rfc8508).
+* NuGet packages now include the portable pdb's.
+
+API Changes Since 2.0.x:
+
+* Obsoleted SearchQuery.HasCustomFlags() and SearchQuery.DoesNotHaveCustomFlags(). These are now SearchQuery.HasKeywords() and SearchQuery.NotKeywords(), respectively.
+* Obsoleted SearchQuery.DoesNotHaveFlags() in favor of SearchQuery.NotFlags().
+* Obsoleted the IMessageSummary.UserFlags property in favor of IMessageSummary.Keywords.
+* Obsoleted the MessageFlagsChangedEventArgs.UserFlags property in favor of MessageFlagsChangedEventArgs.Keywords.
+* All IMailFolder.Fetch and IMailFolder.FetchAsync methods that took a HashSet&lt;string&gt; userFlags argument now take an IEnumerable&lt;string&gt; keywords argument. Note: this only affects you if your code used named method parameters (e.g. userFlags: myUserFlags).
+
+Note to users upgrading from MailKit 1.x:
+
+In order to authenticate using the XOAUTH2 SASL mechanism, you must now use the following approach:
+
+client.Authenticate (new SaslMechanismOAuth2 (username, auth_token));</releaseNotes>
+    <copyright>Xamarin Inc.</copyright>
+    <language>en-US</language>
+    <tags>smtp pop3 imap mime security arc dkim smime s/mime openpgp pgp mbox mail email parser tnef net45 net46 net47 net58 netstandard netstandard1.3 netstandard1.6 netstandard2.0</tags>
+    <repository type="git" url="https://github.com/jstedfast/MailKit" />
+    <dependencies>
+      <group targetFramework=".NETFramework4.5">
+        <dependency id="MimeKit" version="2.8.0" />
+      </group>
+      <group targetFramework=".NETFramework4.6">
+        <dependency id="MimeKit" version="2.8.0" />
+      </group>
+      <group targetFramework=".NETFramework4.7">
+        <dependency id="MimeKit" version="2.8.0" />
+      </group>
+      <group targetFramework=".NETFramework4.8">
+        <dependency id="MimeKit" version="2.8.0" />
+      </group>
+      <group targetFramework=".NETStandard1.3">
+        <dependency id="System.Runtime.Serialization.Primitives" version="4.3.0" />
+        <dependency id="System.Net.NameResolution" version="4.3.0" />
+        <dependency id="System.Net.Security" version="4.3.2" />
+        <dependency id="MimeKit" version="2.8.0" />
+      </group>
+      <group targetFramework=".NETStandard1.6">
+        <dependency id="System.Runtime.Serialization.Primitives" version="4.3.0" />
+        <dependency id="System.Net.NameResolution" version="4.3.0" />
+        <dependency id="System.Net.Security" version="4.3.2" />
+        <dependency id="MimeKit" version="2.8.0" />
+      </group>
+      <group targetFramework=".NETStandard2.0">
+        <dependency id="System.Runtime.Serialization.Primitives" version="4.3.0" />
+        <dependency id="System.Net.NameResolution" version="4.3.0" />
+        <dependency id="System.Net.Security" version="4.3.2" />
+        <dependency id="MimeKit" version="2.8.0" />
+      </group>
+    </dependencies>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.5" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.5" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.5" />
+      <frameworkAssembly assemblyName="System.Net.Http" targetFramework=".NETFramework4.5" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.6" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.6" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.6" />
+      <frameworkAssembly assemblyName="System.Net.Http" targetFramework=".NETFramework4.6" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System.Net.Http" targetFramework=".NETFramework4.7" />
+      <frameworkAssembly assemblyName="System" targetFramework=".NETFramework4.8" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework=".NETFramework4.8" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework=".NETFramework4.8" />
+      <frameworkAssembly assemblyName="System.Net.Http" targetFramework=".NETFramework4.8" />
+      <frameworkAssembly assemblyName="System" targetFramework="MonoAndroid0.0" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework="MonoAndroid0.0" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework="MonoAndroid0.0" />
+      <frameworkAssembly assemblyName="System.Net.Http" targetFramework="MonoAndroid0.0" />
+      <frameworkAssembly assemblyName="System" targetFramework="Xamarin.iOS0.0" />
+      <frameworkAssembly assemblyName="System.Core" targetFramework="Xamarin.iOS0.0" />
+      <frameworkAssembly assemblyName="System.Data" targetFramework="Xamarin.iOS0.0" />
+      <frameworkAssembly assemblyName="System.Net.Http" targetFramework="Xamarin.iOS0.0" />
+    </frameworkAssemblies>
+  </metadata>
+</package>
