@@ -10,12 +10,7 @@
 using namespace MailKit
 using namespace MimeKit
 
-#load assemblies in specific order
-Add-Type -Path ".\MailKit\BouncyCastle.Crypto.dll"
-Add-Type -Path ".\MailKit\MailKit.dll"
-Add-Type -Path ".\MailKit\MimeKit.dll"
-
-#extend InternetAddressList class so it can be available to the calling script
+#extend InternetAddressList class so it can be available to the calling script (MimeKit assembly is loaded first from the manifest file so is available when this module loads)
 class InternetAddressListExtended : InternetAddressList {}
 
 function Send-MailKitMessage(){
@@ -28,15 +23,27 @@ function Send-MailKitMessage(){
         [Parameter(Mandatory=$false)][string[]]$AttachmentList
     )
 
-    $CurrentDirectory=[string]::IsNullOrWhiteSpace($PSScriptRoot) ? (Get-Location).Path : $PSScriptRoot
-    $ErrorActionPreference="Stop"
-
     Try {
 
+        #common variables
+        $CurrentDirectory=[string]::IsNullOrWhiteSpace($PSScriptRoot) ? (Get-Location).Path : $PSScriptRoot
+        $ErrorActionPreference="Stop"
+
+        #script variables
+        $SMTPCredentialsLocation=(Join-Path -Path $CurrentDirectory -ChildPath "SMTPCredentials.csv")
+        $SMTPServer=[string]::Empty
+        $Port=0
+
         #create the SMTPCredentials.csv file if it does not exist (the nickname field allows multiple servers to be added to the file and selected programmatically ie prod vs test)
-        if (-not (Test-Path -Path (Join-Path -Path $CurrentDirectory -ChildPath "SMTPCredentials.csv")))
+        if (-not (Test-Path -Path $SMTPCredentialsLocation))
         {
-            New-Object -TypeName PSCustomObject -Property @{ "Nickname"=""; "SMTPServer"=""; "Port"=""} | Select-Object -Property "Nickname", "SMTPServer", "Port" | Export-Csv -Path (Join-Path -Path $CurrentDirectory -ChildPath "SMTPCredentials.csv")
+            New-Object -TypeName PSCustomObject -Property @{ "Nickname"=""; "SMTPServer"=""; "Port"=""} | Select-Object -Property "Nickname", "SMTPServer", "Port" | Export-Csv -Path $SMTPCredentialsLocation
+        }
+
+        #retrieve SMTP credentials ()
+        Import-Csv -Path $SMTPCredentialsLocation | Where-Object -Property "Nickname" -EQ "Prod" | ForEach-Object {
+            $SMTPServer=$_.SMTPServer
+            $Port=$_.Port
         }
 
         #message
