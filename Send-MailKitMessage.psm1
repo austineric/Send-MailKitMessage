@@ -10,8 +10,13 @@
 using namespace MailKit
 using namespace MimeKit
 
-#add classes to be available to the calling script (MimeKit assembly is loaded first from the manifest file so is available when this module loads)
-class MailboxAddressExtended : MailboxAddress {}
+#extend classes to be available to the calling script (MimeKit assembly is loaded first from the manifest file so is available when this module loads)
+class MailboxAddressExtended : MailboxAddress { #does not allow parameterless construction
+    MailboxAddressExtended([string]$Name, [string]$Address ) : base($Name, $Address) {
+        [string]$Name,      #can be null
+        [string]$Address    #cannot be null
+    }
+}
 class InternetAddressListExtended : InternetAddressList {}
 
 function Send-MailKitMessage(){
@@ -19,8 +24,8 @@ function Send-MailKitMessage(){
         [Parameter(Mandatory=$true)][MailboxAddress]$From,
         [Parameter(Mandatory=$true)][InternetAddressList]$ToList,
         [Parameter(Mandatory=$false)][InternetAddressList]$BCCList,
-        [Parameter(Mandatory=$false)][string[]]$Subject,
-        [Parameter(Mandatory=$false)][string[]]$HTMLBody,
+        [Parameter(Mandatory=$false)][string]$Subject,
+        [Parameter(Mandatory=$false)][string]$HTMLBody,
         [Parameter(Mandatory=$false)][string[]]$AttachmentList
     )
 
