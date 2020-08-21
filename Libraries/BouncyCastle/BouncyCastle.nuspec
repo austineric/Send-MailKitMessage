@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>BouncyCastle</id>
+    <version>1.8.6.1</version>
+    <title>Bouncy Castle</title>
+    <authors>Bouncy Castle Project Contributors</authors>
+    <owners>Teoman Soygul</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>http://www.bouncycastle.org/licence.html</licenseUrl>
+    <projectUrl>http://www.bouncycastle.org/csharp/</projectUrl>
+    <description>The Bouncy Castle Crypto package is a C# implementation of cryptographic algorithms and protocols, it was developed by the Legion of the Bouncy Castle, a registered Australian Charity, with a little help! The Legion, and the latest goings on with this package, can be found at [http://www.bouncycastle.org](http://www.bouncycastle.org). In addition to providing basic cryptography algorithms, the package also provides support for CMS, TSP, X.509 certificate generation and a variety of other standards such as OpenPGP.</description>
+    <summary>Bouncy Castle is a collection of APIs used in cryptography.</summary>
+    <releaseNotes>Defects Fixed
+EdDSA verifiers now reject overly long signatures.
+Fixed field reduction for custom secp128r1 curve.
+ASN.1: Enforce no leading zeroes in OID branches (longer than 1 character).
+Additional Features and Functionality
+TLS: BasicTlsPskIdentity now reusable (returns cloned array from GetPsk).
+Improved performance for multiple ECDSA verifications using same public key.
+Support has been added for ChaCha20-Poly1305 AEAD mode from RFC 7539.
+PKCS12: Improved support for certificate-only key stores without password.</releaseNotes>
+    <copyright>Legion of the Bouncy Castle Inc.</copyright>
+    <language>en-US</language>
+    <tags>bouncycastle cryptography encryption security</tags>
+  </metadata>
+</package>

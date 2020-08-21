@@ -1,7 +1,0 @@
-
-DLL versions:
-
-07/01/2020
-BouncyCastle.Crypto.dll: 1.8.6.1
-MailKit.dll (netstandard 2.0): 2.7.0
-MimeKit.dll (netstandard 2.0): 2.8.0
