@@ -5,8 +5,19 @@ updates:
 
   #mailkit
   - package-ecosystem: "nuget"
-    # Look for `package.json` and `lock` files in the `root` directory
-    directory: "/"
-    # Check the npm registry for updates every day (weekdays)
+    directory: "/Libraries/MailKit"
     schedule:
-      interval: "daily"
+      interval: "weekly"
+
+  #mimekit
+  - package-ecosystem: "nuget"
+    directory: "/Libraries/MimeKit"
+    schedule:
+      interval: "weekly"
+
+
+  #bouncycastle
+  - package-ecosystem: "nuget"
+    directory: "/Libraries/BouncyCastle"
+    schedule:
+      interval: "weekly"
