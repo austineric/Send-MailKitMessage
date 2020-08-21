@@ -1,8 +1,9 @@
 
 
 Try {
-    Publish-Module -Name Send-MailKitMessage -NuGetApiKey $env:PowerShellGalleryAPIKey
+    Publish-Module -Path "..\Send-MailKitMessage" -NuGetApiKey $env:PowerShellGalleryAPIKey
 }
 Catch{
     Throw $Error[0]
 }
+

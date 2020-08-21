@@ -3,7 +3,7 @@
 ####################################
 # Author:       Eric Austin - https://github.com/austineric/Send-MailKitMessage
 # Create date:  June 2020
-# Description:  Uses MailKit to send email because Send-MailMessage is marked obsolete (https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/send-mailmessage?view=powershell-7)
+# Description:  Uses MailKit to send email because Send-MailMessage is marked obsolete (https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/send-mailmessage)
 #               Works with .Net Core
 ####################################
 
