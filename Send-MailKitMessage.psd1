@@ -12,7 +12,7 @@
 RootModule = 'Send-MailKitMessage.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.1'
+ModuleVersion = '1.0.0'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -24,7 +24,7 @@ GUID = '2facf1b9-cb30-43dd-9613-67b838d47832'
 Author = 'Eric Austin'
 
 # Company or vendor of this module
-CompanyName = 'Unknown'
+# CompanyName = 'Unknown'
 
 # Copyright statement for this module
 Copyright = '(c) Eric Austin. All rights reserved.'
