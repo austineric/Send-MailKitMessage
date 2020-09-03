@@ -21,14 +21,15 @@ class InternetAddressListExtended : InternetAddressList {}
 
 function Send-MailKitMessage(){
     param(
+        [Parameter(Mandatory=$true)][string[]]$SMTPServer,
+        [Parameter(Mandatory=$true)][string[]]$Port,
         [Parameter(Mandatory=$true)][MailboxAddress]$From,
         [Parameter(Mandatory=$true)][InternetAddressList]$ToList,
+        [Parameter(Mandatory=$false)][InternetAddressList]$CCList,
         [Parameter(Mandatory=$false)][InternetAddressList]$BCCList,
         [Parameter(Mandatory=$false)][string]$Subject,
         [Parameter(Mandatory=$false)][string]$HTMLBody,
-        [Parameter(Mandatory=$false)][string[]]$AttachmentList,
-        [Parameter(Mandatory=$true)][string[]]$SMTPServer,
-        [Parameter(Mandatory=$true)][string[]]$SPort
+        [Parameter(Mandatory=$false)][string[]]$AttachmentList
     )
 
     Try {
@@ -45,6 +46,12 @@ function Send-MailKitMessage(){
 
         #to
         $Message.To.AddRange($ToList)
+
+        #cc
+        if ($CCList.Count -gt 0)
+        {
+            $Message.Cc.AddRange($CCList)
+        }
 
         #bcc
         if ($BCCList.Count -gt 0)
