@@ -21,8 +21,8 @@ class InternetAddressListExtended : InternetAddressList {}
 
 function Send-MailKitMessage(){
     param(
-        [Parameter(Mandatory=$true)][string[]]$SMTPServer,
-        [Parameter(Mandatory=$true)][string[]]$Port,
+        [Parameter(Mandatory=$true)][string]$SMTPServer,
+        [Parameter(Mandatory=$true)][string]$Port,
         [Parameter(Mandatory=$true)][MailboxAddress]$From,
         [Parameter(Mandatory=$true)][InternetAddressList]$ToList,
         [Parameter(Mandatory=$false)][InternetAddressList]$CCList,
