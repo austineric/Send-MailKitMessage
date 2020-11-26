@@ -12,7 +12,7 @@ updates:
     directory: "/Libraries/MailKit"
     schedule:
       interval: "daily"
-	  
+
   # MimeKit
   - package-ecosystem: "nuget"
     directory: "/Libraries/MimeKit"
