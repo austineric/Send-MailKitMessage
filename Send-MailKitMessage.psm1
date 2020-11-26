@@ -4,7 +4,6 @@
 # Author:       Eric Austin - https://github.com/austineric/Send-MailKitMessage
 # Create date:  June 2020
 # Description:  Uses MailKit to send email because Send-MailMessage is marked obsolete (https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/send-mailmessage)
-#               Works with .Net Core
 ####################################
 
 using namespace MailKit
@@ -12,7 +11,7 @@ using namespace MimeKit
 
 #extend classes to be available to the calling script (MimeKit assembly is loaded first from the manifest file so is available when this module loads)
 class MailboxAddressExtended : MailboxAddress { #does not allow parameterless construction
-    MailboxAddressExtended([string]$Name, [string]$Address ) : base($Name, $Address) {
+    MailboxAddressExtended([string]$Name, [string]$Address) : base($Name, $Address) {
         [string]$Name,      #can be null
         [string]$Address    #cannot be null
     }
@@ -21,6 +20,7 @@ class InternetAddressListExtended : InternetAddressList {}
 
 function Send-MailKitMessage(){
     param(
+        [Parameter(Mandatory=$false)][pscredential]$Credential,
         [Parameter(Mandatory=$true)][string]$SMTPServer,
         [Parameter(Mandatory=$true)][string]$Port,
         [Parameter(Mandatory=$true)][MailboxAddress]$From,
@@ -28,20 +28,19 @@ function Send-MailKitMessage(){
         [Parameter(Mandatory=$false)][InternetAddressList]$CCList,
         [Parameter(Mandatory=$false)][InternetAddressList]$BCCList,
         [Parameter(Mandatory=$false)][string]$Subject,
+        [Parameter(Mandatory=$false)][string]$TextBody,
         [Parameter(Mandatory=$false)][string]$HTMLBody,
         [Parameter(Mandatory=$false)][string[]]$AttachmentList
     )
 
     Try {
 
-        #common variables
         $ErrorActionPreference="Stop"
 
         #message
         $Message=New-Object MimeMessage
 
         #from
-        $From=New-Object MailboxAddress($From)
         $Message.From.Add($From)
 
         #to
@@ -52,7 +51,7 @@ function Send-MailKitMessage(){
         {
             $Message.Cc.AddRange($CCList)
         }
-
+        
         #bcc
         if ($BCCList.Count -gt 0)
         {
@@ -65,13 +64,21 @@ function Send-MailKitMessage(){
             $Message.Subject=$Subject
         }
 
-        #html body (use [System.Web.HttpUtility]::HtmlDecode(TextToDecode) in case there are html elements present that have been escaped)
+        #body
         $BodyBuilder=New-Object BodyBuilder
-        if ( -not ([string]::IsNullOrWhiteSpace($Message)))
-        {
-            $BodyBuilder.HtmlBody=[System.Web.HttpUtility]::HtmlDecode($HTMLBody)
-        }
         
+        #text body
+        if (-not ([string]::IsNullOrWhiteSpace($TextBody)))
+        {
+            $BodyBuilder.TextBody=$TextBody
+        }
+
+        #html body
+        if (-not ([string]::IsNullOrWhiteSpace($HTMLBody)))
+        {
+            $BodyBuilder.HtmlBody=[System.Web.HttpUtility]::HtmlDecode($HTMLBody)   #use [System.Web.HttpUtility]::HtmlDecode() in case there are html elements present that have been escaped
+        }
+
         #attachment(s)
         if ($AttachmentList.Count -gt 0)
         {
@@ -85,14 +92,18 @@ function Send-MailKitMessage(){
 
         #smtp send
         $Client=New-Object MailKit.Net.Smtp.SmtpClient
-        $Client.Connect($SMTPServer, $Port)
+        $Client.Connect($SMTPServer, $Port, [Security.SecureSocketOptions]::Auto)
+        if ($Credential)
+        {
+            $Client.Authenticate($Credential.UserName, ($Credential.Password | ConvertFrom-SecureString -AsPlainText))
+        }
         $Client.Send($Message)
 
     }
 
     Catch {
         
-        Throw $Error[0]
+        Throw $Global:Error[0]
 
     }
 
