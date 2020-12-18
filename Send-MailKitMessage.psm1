@@ -1,32 +1,21 @@
 
 
 ####################################
-# Author:       Eric Austin - https://github.com/austineric/Send-MailKitMessage
-# Create date:  June 2020
-# Description:  Uses MailKit to send email because Send-MailMessage is marked obsolete (https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/send-mailmessage)
+# Author:       Eric Austin
+# Repo:         https://github.com/austineric/Send-MailKitMessage
+# Description:  A replacement for PowerShell's obsolete Send-MailMessage implementing the Microsoft-recommended MailKit library.
 ####################################
-
-using namespace MailKit
-using namespace MimeKit
-
-#extend classes to be available to the calling script (MimeKit assembly is loaded first from the manifest file so is available when this module loads)
-class MailboxAddressExtended : MailboxAddress { #does not allow parameterless construction
-    MailboxAddressExtended([string]$Name, [string]$Address) : base($Name, $Address) {
-        [string]$Name,      #can be null
-        [string]$Address    #cannot be null
-    }
-}
-class InternetAddressListExtended : InternetAddressList {}
 
 function Send-MailKitMessage(){
     param(
+        [Parameter(Mandatory=$false)][bool]$UseSecureConnectionIfAvailable,
         [Parameter(Mandatory=$false)][pscredential]$Credential,
         [Parameter(Mandatory=$true)][string]$SMTPServer,
-        [Parameter(Mandatory=$true)][string]$Port,
-        [Parameter(Mandatory=$true)][MailboxAddress]$From,
-        [Parameter(Mandatory=$true)][InternetAddressList]$ToList,
-        [Parameter(Mandatory=$false)][InternetAddressList]$CCList,
-        [Parameter(Mandatory=$false)][InternetAddressList]$BCCList,
+        [Parameter(Mandatory=$true)][int]$Port,
+        [Parameter(Mandatory=$true)][MimeKit.MailboxAddress]$From,
+        [Parameter(Mandatory=$true)][MimeKit.InternetAddressList]$RecipientList,
+        [Parameter(Mandatory=$false)][MimeKit.InternetAddressList]$CCList,
+        [Parameter(Mandatory=$false)][MimeKit.InternetAddressList]$BCCList,
         [Parameter(Mandatory=$false)][string]$Subject,
         [Parameter(Mandatory=$false)][string]$TextBody,
         [Parameter(Mandatory=$false)][string]$HTMLBody,
@@ -38,13 +27,13 @@ function Send-MailKitMessage(){
         $ErrorActionPreference="Stop"
 
         #message
-        $Message=New-Object MimeMessage
+        $Message=[MimeKit.MimeMessage]::new()
 
         #from
         $Message.From.Add($From)
 
         #to
-        $Message.To.AddRange($ToList)
+        $Message.To.AddRange($RecipientList)
 
         #cc
         if ($CCList.Count -gt 0)
@@ -65,7 +54,8 @@ function Send-MailKitMessage(){
         }
 
         #body
-        $BodyBuilder=New-Object BodyBuilder
+        #$BodyBuilder=New-Object BodyBuilder
+        $BodyBuilder=[MimeKit.BodyBuilder]::new()
         
         #text body
         if (-not ([string]::IsNullOrWhiteSpace($TextBody)))
@@ -92,7 +82,7 @@ function Send-MailKitMessage(){
 
         #smtp send
         $Client=New-Object MailKit.Net.Smtp.SmtpClient
-        $Client.Connect($SMTPServer, $Port, [Security.SecureSocketOptions]::Auto)
+        $Client.Connect($SMTPServer, $Port, ($UseSecureConnectionIfAvailable ? [MailKit.Security.SecureSocketOptions]::Auto : [MailKit.Security.SecureSocketOptions]::None))
         if ($Credential)
         {
             $Client.Authenticate($Credential.UserName, ($Credential.Password | ConvertFrom-SecureString -AsPlainText))

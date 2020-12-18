@@ -1,7 +1,0 @@
-
-version: 2
-updates:
-  - package-ecosystem: "nuget"
-    directory: "/Libraries"
-    schedule:
-      interval: "daily"
