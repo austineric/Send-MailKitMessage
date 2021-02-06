@@ -19,7 +19,7 @@ using module Send-MailKitMessage
 $Parameters=@{
 
     #Use secure connection if available (optional; [bool])
-    "UseSecureConnectionIfAvailable=$true
+    "UseSecureConnectionIfAvailable"=$true
 
     #Authentication (optional; [System.Management.Automation.PSCredential])
     "Credential"=[System.Management.Automation.PSCredential]::new("Username", (ConvertTo-SecureString -String "Password" -AsPlainText -Force))
