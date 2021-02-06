@@ -56,7 +56,7 @@ $Parameters=@{
     
     #Attachment list (optional; [System.Collections.Generic.List[string]] or array)
     "AttachmentList"="AttachmentPath" #single attachment
-    "AttachmentList=($AttachmentFilePathList | ForEach-Object { $_ }) #multiple attachment filepaths contained in a list named $AttachmentFilePathList
+    "AttachmentList"=($AttachmentFilePathList | ForEach-Object { $_ }) #multiple attachment filepaths contained in a list named $AttachmentFilePathList
 
 }
 
