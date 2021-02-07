@@ -35,15 +35,15 @@ $Parameters=@{
 
     #Recipient list (at least one recipient required; [MimeKit.InternetAddressList] http://www.mimekit.net/docs/html/T_MimeKit_InternetAddressList.htm)
     "RecipientList"=[MimeKit.InternetAddressList]"RecipientEmailAddress" #single recipient
-    "RecipientList"=($EmailList | ForEach-Object { [MimeKit.InternetAddressList]$_ }) #multiple recipients contained in a list named $EmailList
+    "RecipientList"=[MimeKit.InternetAddressList]::new([System.Collections.Generic.List[MimeKit.InternetAddress]](Import-Csv -Path "CSVFilePath" | ForEach-Object { [MimeKit.InternetAddress]$_."RecipientEmailAddressColumnName" }))    #multiple recipients in a csv file
 
     #CC list (optional; [MimeKit.InternetAddressList] http://www.mimekit.net/docs/html/T_MimeKit_InternetAddressList.htm)
     "CCList"=[MimeKit.InternetAddressList]"CCRecipientEmailAddress" #single CC recipient
-    "CCList"=($EmailList | ForEach-Object { [MimeKit.InternetAddressList]$_ }) #multiple CC recipients contained in a list named $EmailList
+    "CCList"=[MimeKit.InternetAddressList]::new([System.Collections.Generic.List[MimeKit.InternetAddress]](Import-Csv -Path "CSVFilePath" | ForEach-Object { [MimeKit.InternetAddress]$_."CCRecipientEmailAddressColumnName" }))    #multiple CC recipients in a csv file
 
     #BCC list (optional; [MimeKit.InternetAddressList] http://www.mimekit.net/docs/html/T_MimeKit_InternetAddressList.htm)
     "BCCList"=[MimeKit.InternetAddressList]"BCCRecipientEmailAddress" #single BCC recipient
-    "BCCList"=($EmailList | ForEach-Object { [MimeKit.InternetAddressList]$_ }) #multiple BCC recipients contained in a list named $EmailList
+    "BCCList"=[MimeKit.InternetAddressList]::new([System.Collections.Generic.List[MimeKit.InternetAddress]](Import-Csv -Path "CSVFilePath" | ForEach-Object { [MimeKit.InternetAddress]$_."BCCRecipientEmailAddressColumnName" }))    #multiple CC recipients in a csv file
     
     #Subject (required; [string])
     "Subject"="Subject"
@@ -55,18 +55,14 @@ $Parameters=@{
     "HTMLBody"="HTMLBody"
     
     #Attachment list (optional; [System.Collections.Generic.List[string]] or array)
-    "AttachmentList"="AttachmentPath" #single attachment
+    "AttachmentList"=([System.Collections.Generic.List[string]]::new()).Add("AttachmentPath")   #single attachment
     "AttachmentList"=($AttachmentFilePathList | ForEach-Object { $_ }) #multiple attachment filepaths contained in a list named $AttachmentFilePathList
 
 }
 
 Send-MailKitMessage @Parameters
 ```
-  
 </details>
-
-
-
 
 # Releases
 ### 3.0

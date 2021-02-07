@@ -10,7 +10,8 @@ if ((Get-Item -Path (Get-Location).Path).Name -ne "Dev")
 Remove-Module -Name "Send-MailKitMessage"
 
 #IMPORTANT: the dll's used by Send-MailKitMessage do not get unloaded unless the session is restarted (the "Kill Terminal" button in Visual Studio Code), failure to restart the session can cause "assembly is already loaded" errors
-Invoke-Expression "using module `"..\..\Send-MailKitMessage`""
+#Invoke-Expression "using module `"..\..\Send-MailKitMessage`""
+Invoke-Expression "using module Send-MailKitMessage"
 
 #ensure the repo version of the module is being used (not the real version if it is installed as a module)
 Get-Module -Name "Send-MailKitMessage" | Select-Object -Property "ModuleBase"
@@ -62,7 +63,8 @@ $Parameters=@{
     "From"=[MimeKit.MailboxAddress]$ParametersFile."From"
 
     #Recipient list (at least one recipient required) (http://www.mimekit.net/docs/html/T_MimeKit_InternetAddressList.htm)
-    "RecipientList"=[MimeKit.InternetAddressList]$ParametersFile."To"  #I actually think this works
+    #"RecipientList"=[MimeKit.InternetAddressList]$ParametersFile."To"
+    "RecipientList"=[MimeKit.InternetAddressList]::new([System.Collections.Generic.List[MimeKit.InternetAddress]](Import-Csv -Path "C:\Users\EAustin\Desktop\2021.02.07_1\ReportRecipients.csv" | ForEach-Object { [MimeKit.InternetAddress]$_."Email" }))
 
     #CC list (optional) (http://www.mimekit.net/docs/html/T_MimeKit_InternetAddressList.htm)
     "CCList"=[MimeKit.InternetAddressList]([string]::IsNullOrWhiteSpace($ParametersFile."CC") ? $null : $ParametersFile."CC")
@@ -80,7 +82,8 @@ $Parameters=@{
     "HTMLBody"=$ParametersFile."HTMLBody"
     
     #Attachment list (optional)
-    "AttachmentList"=[System.Collections.Generic.List[string]]([string]::IsNullOrWhiteSpace($ParametersFile."AttachmentLocation") ? $null : $ParametersFile."AttachmentLocation")
+    #"AttachmentList"=[System.Collections.Generic.List[string]]([string]::IsNullOrWhiteSpace($ParametersFile."AttachmentLocation") ? $null : $ParametersFile."AttachmentLocation")
+    #"AttachmentList"=([System.Collections.Generic.List[string]]::new()).Add([string]::IsNullOrWhiteSpace($ParametersFile."AttachmentLocation") ? $null : $ParametersFile."AttachmentLocation")
 
 }
 
