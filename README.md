@@ -74,7 +74,10 @@ Send-MailKitMessage @Parameters
 ```
 
 # Releases
-### 3.0
+### 3.1.0
+* Changed UseSecureConnectionIfAvailable parameter type from [bool] to [switch]
+
+### 3.0.0
 * Added credential support
 * Added parameter to use secure connection if available
 * Removed extended classes

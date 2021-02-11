@@ -8,7 +8,7 @@
 
 function Send-MailKitMessage(){
     param(
-        [Parameter(Mandatory=$false)][bool]$UseSecureConnectionIfAvailable,
+        [Parameter(Mandatory=$false)][switch]$UseSecureConnectionIfAvailable = $true,
         [Parameter(Mandatory=$false)][pscredential]$Credential,
         [Parameter(Mandatory=$true)][string]$SMTPServer,
         [Parameter(Mandatory=$true)][int]$Port,
@@ -82,7 +82,7 @@ function Send-MailKitMessage(){
 
         #smtp send
         $Client=New-Object MailKit.Net.Smtp.SmtpClient
-        $Client.Connect($SMTPServer, $Port, ($UseSecureConnectionIfAvailable ? [MailKit.Security.SecureSocketOptions]::Auto : [MailKit.Security.SecureSocketOptions]::None))
+        $Client.Connect($SMTPServer, $Port, ($UseSecureConnectionIfAvailable.IsPresent ? [MailKit.Security.SecureSocketOptions]::Auto : [MailKit.Security.SecureSocketOptions]::None))
         if ($Credential)
         {
             $Client.Authenticate($Credential.UserName, ($Credential.Password | ConvertFrom-SecureString -AsPlainText))
