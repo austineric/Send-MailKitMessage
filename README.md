@@ -11,8 +11,6 @@ A replacement for PowerShell's [obsolete Send-MailMessage](https://docs.microsof
 # Usage
 
 ```
-using module Send-MailKitMessage
-
 #use secure connection if available ([bool], optional)
 $UseSecureConnectionIfAvailable=$true
 
