@@ -74,6 +74,10 @@ Send-MailKitMessage @Parameters
 ```
 
 # Releases
+### 3.1.1
+* Updated to allow Windows PowerShell compatibility (not done)
+* Updated Portable.BouncyCastle to 1.8.10 (not done)
+
 ### 3.1.0
 * Changed UseSecureConnectionIfAvailable parameter type from [bool] to [switch]
 
