@@ -1,0 +1,232 @@
+﻿using System;
+using System.IO;
+using System.Management.Automation;
+using System.Management.Automation.Runspaces;
+using System.Reflection;
+using System.Web;
+using MailKit;
+using MimeKit;
+using Org.BouncyCastle;
+
+namespace Send_MailKitMessage
+{
+    public class ModuleInitializer : IModuleAssemblyInitializer
+    {
+        public void OnImport()
+        {
+            //for some reason running Send-MailKitMessage in Windows PowerShell ALWAYS returned the following exception: "Could not load file or assembly 'System.Buffers, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51' or one of its dependencies. The system cannot find the file specified."
+            //and I COULD NOT nail down what was causing it
+            //so per https://devblogs.microsoft.com/powershell/resolving-powershell-module-assembly-dependency-conflicts/ I am using an AssemblyResolve event handler to create a dynamic binding redirect so all calls to System.Buffers use the same assembly
+            AppDomain.CurrentDomain.AssemblyResolve += DependencyResolution.ResolveSystemBuffers;
+        }
+    }
+
+    public class ModuleCleanup : IModuleAssemblyCleanup
+    {
+        public void OnRemove(PSModuleInfo psModuleInfo)
+        {
+            AppDomain.CurrentDomain.AssemblyResolve -= DependencyResolution.ResolveSystemBuffers;
+        }
+    }
+
+    internal static class DependencyResolution
+    {
+        private static readonly string CurrentLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+        public static Assembly ResolveSystemBuffers(object sender, ResolveEventArgs args)
+        {
+            //parse the assembly name
+            var assemblyName = new AssemblyName(args.Name);
+
+            //only handle the dependency we care about
+            if (!assemblyName.Name.Equals("System.Buffers"))
+            {
+                return null;
+            }
+
+            return Assembly.LoadFrom(Path.Combine(CurrentLocation, "System.Buffers.dll"));
+        }
+    }
+
+
+    [Cmdlet(VerbsCommunications.Send, "MailKitMessage")]
+    [OutputType(typeof(void))]
+    public class Send_MailKitMessage : PSCmdlet
+    {
+        [Parameter(
+            Mandatory = false,
+            ValueFromPipeline = true,
+            ValueFromPipelineByPropertyName = true)]
+        public SwitchParameter UseSecureConnectionIfAvailable { get; set; } = SwitchParameter.Present;  //default to present if no value is passed
+
+        [Parameter(
+            Mandatory = false,
+            ValueFromPipeline = true,
+            ValueFromPipelineByPropertyName = true)]
+        public PSCredential Credential { get; set; }
+
+        [Parameter(
+            Mandatory = true,
+            ValueFromPipeline = true,
+            ValueFromPipelineByPropertyName = true)]
+        public string SMTPServer { get; set; }
+
+        [Parameter(
+            Mandatory = true,
+            ValueFromPipeline = true,
+            ValueFromPipelineByPropertyName = true)]
+        public int Port { get; set; }
+
+        [Parameter(
+            Mandatory = true,
+            ValueFromPipeline = true,
+            ValueFromPipelineByPropertyName = true)]
+        public MimeKit.MailboxAddress From { get; set; }
+
+        [Parameter(
+            Mandatory = true,
+            ValueFromPipeline = true,
+            ValueFromPipelineByPropertyName = true)]
+        public MimeKit.InternetAddressList RecipientList { get; set; }
+
+        [Parameter(
+            Mandatory = false,
+            ValueFromPipeline = false,
+            ValueFromPipelineByPropertyName = true)]
+        public MimeKit.InternetAddressList CCList { get; set; }
+
+        [Parameter(
+            Mandatory = false,
+            ValueFromPipeline = true,
+            ValueFromPipelineByPropertyName = true)]
+        public MimeKit.InternetAddressList BCCList { get; set; }
+
+        [Parameter(
+            Mandatory = false,
+            ValueFromPipeline = true,
+            ValueFromPipelineByPropertyName = true)]
+        public string Subject { get; set; }
+
+        [Parameter(
+            Mandatory = false,
+            ValueFromPipeline = true,
+            ValueFromPipelineByPropertyName = true)]
+        public string TextBody { get; set; }
+
+        [Parameter(
+            Mandatory = false,
+            ValueFromPipeline = true,
+            ValueFromPipelineByPropertyName = true)]
+        public string HTMLBody { get; set; }
+
+        [Parameter(
+            Mandatory = false,
+            ValueFromPipeline = true,
+            ValueFromPipelineByPropertyName = true)]
+        public string[] AttachmentList { get; set; }
+
+        // This method gets called once for each cmdlet in the pipeline when the pipeline starts executing
+        protected override void BeginProcessing()
+        {
+            WriteVerbose("Begin!");
+        }
+
+        // This method will be called for each input received from the pipeline to this cmdlet; if no input is received, this method is not called
+        protected override void ProcessRecord()
+        {
+
+            MimeMessage Message = new MimeMessage();
+            BodyBuilder Body = new BodyBuilder();
+            MailKit.Net.Smtp.SmtpClient Client = new MailKit.Net.Smtp.SmtpClient();
+
+            try
+            {
+
+                //from
+                Message.From.Add(From);
+
+                //to
+                Message.To.AddRange(RecipientList);
+
+                //cc
+                if (CCList.Count > 0)
+                {
+                    Message.Cc.AddRange(CCList);
+                }
+
+                //bcc
+                if (BCCList.Count > 0)
+                {
+                    Message.Bcc.AddRange(BCCList);
+                }
+
+                //subject
+                if (!string.IsNullOrWhiteSpace(Subject))
+                {
+                    Message.Subject = Subject;
+                }
+
+                //text body
+                if (!string.IsNullOrWhiteSpace(TextBody))
+                {
+                    Body.TextBody = TextBody;
+                }
+
+                //html body
+                if (!string.IsNullOrWhiteSpace(HTMLBody))
+                {
+                    Body.HtmlBody = HttpUtility.HtmlDecode(HTMLBody);    //decode html in case it was encoded along the way
+                }
+
+                //attachment(s)
+                if (AttachmentList.Length > 0)
+                {
+                    foreach (string Attachment in AttachmentList)
+                    {
+                        Body.Attachments.Add(Attachment);
+                    }
+                }
+
+                //add bodybuilder to body
+                Message.Body = Body.ToMessageBody();
+
+                //smtp send
+                Client.Connect(SMTPServer, Port, (UseSecureConnectionIfAvailable.IsPresent ? MailKit.Security.SecureSocketOptions.Auto : MailKit.Security.SecureSocketOptions.None));
+                if (Credential != null)
+                {
+                    //IntPtr SecurePassword = System.Runtime.InteropServices.Marshal.SecureStringToBSTR(Credential.Password);
+                    //string PlainTextPassword = System.Runtime.InteropServices.Marshal.PtrToStringAuto(SecurePassword);
+                    //Client.Authenticate(Credential.UserName, PlainTextPassword);
+
+                    Client.Authenticate(Credential.UserName, (System.Runtime.InteropServices.Marshal.PtrToStringAuto(System.Runtime.InteropServices.Marshal.SecureStringToBSTR(Credential.Password))));
+                }
+                Client.Send(Message);
+
+            }
+            catch (Exception e)
+            {
+                
+                throw e;
+            }
+            finally
+            {
+                if (Client.IsConnected)
+                {
+                    Client.Disconnect(true);
+                }
+            }
+        }
+
+        // This method will be called once at the end of pipeline execution; if no input is received, this method is not called
+        protected override void EndProcessing()
+        {
+            WriteVerbose("End!");
+        }
+    }
+
+    public class FavoriteStuff
+    {
+        public int FavoriteNumber { get; set; }
+        public string FavoritePet { get; set; }
+    }
+}

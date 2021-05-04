@@ -9,7 +9,7 @@
 @{
 
 # Script module or binary module file associated with this manifest.
-RootModule = 'Send-MailKitMessage.psm1'
+RootModule = 'Send_MailKitMessage.dll'
 
 # Version number of this module.
 ModuleVersion = '3.1.0'
@@ -54,8 +54,8 @@ Description = 'A replacement for PowerShell''s obsolete Send-MailMessage impleme
 # RequiredModules = @()
 
 # Assemblies that must be loaded prior to importing this module
-RequiredAssemblies = 'Libraries/BouncyCastle.Crypto.dll', 'Libraries/MailKit.dll', 
-               'Libraries/MimeKit.dll'
+RequiredAssemblies = 'BouncyCastle.Crypto.dll', 'MailKit.dll', 
+               'MimeKit.dll', 'System.Buffers.dll'
 
 # Script files (.ps1) that are run in the caller's environment prior to importing this module.
 # ScriptsToProcess = @()
@@ -73,7 +73,7 @@ RequiredAssemblies = 'Libraries/BouncyCastle.Crypto.dll', 'Libraries/MailKit.dll
 FunctionsToExport = 'Send-MailKitMessage'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
-CmdletsToExport = @()
+CmdletsToExport = 'Send-MailKitMessage'
 
 # Variables to export from this module
 # VariablesToExport = @()
@@ -130,4 +130,3 @@ HelpInfoURI = 'https://github.com/austineric/Send-MailKitMessage#usage'
 # DefaultCommandPrefix = ''
 
 }
-
