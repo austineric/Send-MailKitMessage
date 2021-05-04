@@ -6,6 +6,8 @@
 # Description:  A replacement for PowerShell's obsolete Send-MailMessage implementing the Microsoft-recommended MailKit library.
 ####################################
 
+Add-Type -AssemblyName System.Web   #Windows PowerShell throws an exception on System.Web.HttpUtility without this
+
 function Send-MailKitMessage(){
     param(
         [Parameter(Mandatory=$false)][switch]$UseSecureConnectionIfAvailable = $true,
@@ -81,7 +83,7 @@ function Send-MailKitMessage(){
         $Message.Body=$BodyBuilder.ToMessageBody()
 
         #smtp send
-        $Client=New-Object MailKit.Net.Smtp.SmtpClient
+        $Client=[MailKit.Net.Smtp.SmtpClient]::new()
         $Client.Connect($SMTPServer, $Port, (if ($UseSecureConnectionIfAvailable.IsPresent) { [MailKit.Security.SecureSocketOptions]::Auto } else { [MailKit.Security.SecureSocketOptions]::None }))
         if ($Credential)
         {

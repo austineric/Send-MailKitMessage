@@ -63,8 +63,8 @@ $Parameters=@{
     "From"=[MimeKit.MailboxAddress]$ParametersFile."From"
 
     #Recipient list (at least one recipient required) (http://www.mimekit.net/docs/html/T_MimeKit_InternetAddressList.htm)
-    #"RecipientList"=[MimeKit.InternetAddressList]$ParametersFile."To"
-    "RecipientList"=[MimeKit.InternetAddressList]::new([System.Collections.Generic.List[MimeKit.InternetAddress]](Import-Csv -Path "C:\Users\EAustin\Desktop\2021.02.07_1\ReportRecipients.csv" | ForEach-Object { [MimeKit.InternetAddress]$_."Email" }))
+    "RecipientList"=[MimeKit.InternetAddressList]$ParametersFile."To"
+    #"RecipientList"=[MimeKit.InternetAddressList]::new([System.Collections.Generic.List[MimeKit.InternetAddress]](Import-Csv -Path "C:\Users\EAustin\Desktop\2021.02.07_1\ReportRecipients.csv" | ForEach-Object { [MimeKit.InternetAddress]$_."Email" }))
 
     #CC list (optional) (http://www.mimekit.net/docs/html/T_MimeKit_InternetAddressList.htm)
     "CCList"=[MimeKit.InternetAddressList]([string]::IsNullOrWhiteSpace($ParametersFile."CC") ? $null : $ParametersFile."CC")
