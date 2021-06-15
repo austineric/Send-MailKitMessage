@@ -22,6 +22,8 @@
 
   <ItemGroup>
     <None Remove="Parameters.csv" />
+    <None Remove="Publish to PSGallery.ps1" />
+    <None Remove="Send-MailKitMessage.psd1" />
     <None Remove="Use module.ps1" />
   </ItemGroup>
 
