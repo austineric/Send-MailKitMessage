@@ -2,74 +2,159 @@
 
 ####################################
 # Author:       Eric Austin
-# Create date:  August 2020
-# Description:  Publish module to the PowerShell gallery including version prompt
+# Create date:  May 2021
+# Description:  Publish Send-MailKitMessage to the PowerShell Gallery
 ####################################
 
-using namespace System.Collections.Generic
+#namespaces
+#using namespace System.Data     #required for DataTable
+#using namespace System.Data.SqlClient
+#using namespace System.Collections.Generic  #required for List<T>
+#using module Send-MailKitMessage
 
 Try {
 
-    #script variables
-    $ManifestLocation="..\Send-MailKitMessage.psd1"
-    $NewModuleVersion=[string]::Empty
-    $Confirm=[string]::Empty
+    #common variables
+    $CurrentDirectory=[string]::IsNullOrWhiteSpace($PSScriptRoot) ? (Get-Location).Path : $PSScriptRoot
+    $ErrorActionPreference="Stop"
 
-    function Get-ModuleVersion {
-        return [PSCustomObject]@{
-            "LocalManifestVersion"=((Get-Content -Path $ManifestLocation) | Where-Object { $_.Contains("ModuleVersion =") }).Replace("'", "").Replace("ModuleVersion = ", "")
-            "PSGalleryVersion"=(Find-Module -Name "Send-MailKitMessage")."Version"
-        }
-    }
+    #project elements
+    $ProjectModuleManifestPath=(Join-Path -Path $CurrentDirectory -ChildPath "Project" -AdditionalChildPath "Send-MailKitMessage.psd1")
+    $ProjectCSProjFilePath=(Join-Path -Path ".." -ChildPath "Project" -AdditionalChildPath "Send-MailKitMessage.csproj")
+    $ProjectCSProjFile=[xml]::new()
 
-    Clear-Host
+    #published elements
+    $PublishedModuleManifest=@{}
+    $PublishedCSProjFile=[xml]::new()
+    $PublishedModuleManifestPath=(Join-Path -Path $CurrentDirectory -ChildPath "Publish" -AdditionalChildPath "Send-MailKitMessage.psd1")
+    $PublishedCSProjPath=(Join-Path -Path $CurrentDirectory -ChildPath "Publish" -AdditionalChildPath "Send-MailKitMessage.csproj")
+
+    #updated version values
+    $UpdatedModuleManifestVersion=[string]::Empty
+    $UpdatedModuleManifestPrereleaseString=[string]::Empty
+    $UpdatedCSProjVersion=[string]::Empty
+    $UpdatedCSProjAssemblyVersion=[string]::Empty
+    $UpdatedCSProjFileVersion=[string]::Empty
+
+    #--------------#
+
+    #get the published module manifest
+    $PublishedModuleManifest=(Import-PowerShellDataFile -Path $PublishedModuleManifestPath).PrivateData.PSData
+    $PublishedModuleManifest=(Import-PowerShellDataFile -Path "C:\Users\Eric\Desktop\2021.05.20T13.16.01\Send-MailKitMessage.psd1").PrivateData.PSData
+    $PublishedModuleManifest.PrivateData.PSData.Prerelease
+    #get the published csproj file
+    $CSProjFile=[xml](Get-Content -Raw -Path $PublishedCSProjFile)
+
+    Write-Host ""
+    Write-Host "The published module manifest version is $($PublishedModuleManifest."ModuleVersion" + ([string]::IsNullOrWhiteSpace($PublishedModuleManifest.PrivateData.PSData.Prerelease) ? """" : "-" + $PublishedModuleManifest.PrivateData.PSData.Prerelease))"
+    Write-Host ""   #I should make a copy of the manifest, set a prerelease string, import it, and make sure I can display it correctly
     Write-Host ""
 
-    #list semantic versioning
+    # So the script needs to:
+        # display current values
+        # prompt for new values (including prerelease)
+        # Update the module manifest "ModuleVersion"
+        # Update .csproj "Version"
+        # Update .csproj "AssemblyVersion"
+        # Update .csproj "FileVersion"
+        # Update the module manifest "ModuleVersion"
+        # Then "dotnet publish /p:Version=3.3.3 /p:AssemblyVersion=4.4.4 /p:FileVersion=5.5.5" (dotnet publish should copy the updated module manifest to the publish destination)
+
+
+
+
+
+
+
+
+
+    #get the module version from the manifest so everything is coming from the downloaded version
+    #get the module version from PSGallery (accounts for prerelease module; output includes prerelease string if present)
+    #$PublishedModuleManifestVersion=(Find-Module -Name "Send-MailKitMessage" -AllowPrerelease -Repository "PSGallery").Version
+    #(Find-Module -Name "azure.databricks.cicd.tools" -AllowPrerelease).Version
+
+    #get the published moduled manifest version
+    $Data=(Get-Content -Path $PublishedModuleManifestPath)
+    $Data=@{}
+    $Data.GetType()
+    $Data[3]
+    $Data["ModuleVersion"]
+    
+    
+
+    #hmm, it looks like there isn't really a good way to get the csproj data (I mean some of it comes from the file itself but not all of it)
+    #perhaps the build should copy the csproj file to the publish folder and then that file should be excluded from the psgallery publish
+
+    #get the module version from the manifest
+    $PublishedModuleManifestVersion=([System.IO.FileInfo](Join-Path -Path $PSGalleryModuleDownloadDirectory -ChildPath "Send-MailKitMessage" -AdditionalChildPath "*","Send_MailKitMessage.dll" -Resolve)).VersionInfo.ProductVersion
+
+    #get the prerelease string from the manifest
+
+
+
+    #get the published assembly version and the published file version
+    $PublishedCSProjAssemblyVersion=([System.IO.FileInfo](Join-Path -Path $PSGalleryModuleDownloadDirectory -ChildPath "Send-MailKitMessage" -AdditionalChildPath "Send_MailKitMessage.dll")).VersionInfo.ProductVersion
+    $PublishedCSProjAssemblyVersion=([System.IO.FileInfo](Join-Path -Path $PSGalleryModuleDownloadDirectory -ChildPath "Send-MailKitMessage" -AdditionalChildPath "*","Send_MailKitMessage.dll" -Resolve)).VersionInfo.
+
+    $PublishedCSProjFileVersion=([System.IO.FileInfo](Join-Path -Path $PSGalleryModuleDownloadDirectory -ChildPath "Send-MailKitMessage" -AdditionalChildPath "Send_MailKitMessage.dll")).VersionInfo.FileVersion
+
+    ([System.IO.FileInfo]"C:\Users\Eric\AppData\Local\Temp\Send-MailKitMessage\20210517190616\Send-MailKitMessage\3.1.0\Send_MailKitMessage.dll").VersionInfo
+
+    #display the current versions and prompt for new value(s), including prerelease, major/minor/build/revision, etc
+    
+    #module manifest version
     Write-Host ""
     Write-Host "Versioning is MAJOR.MINOR.PATCH"
     Write-Host "MAJOR version when you make incompatible API changes"
     Write-Host "MINOR version when you add functionality in a backwards compatible manner"
     Write-Host "PATCH version when you make backwards compatible bug fixes"
+    Write-Host "The published module version is $PublishedModuleManifestVersion"
+    $UpdatedModuleManifestVersion=(Read-Host "Enter new module version")
 
-    #get local manifest version and PSGallery module version (use Out-Host to force it to write to the host before displaying the Read-Host below)
-    Write-Host ""
-    Write-Host "Getting module versions:"
-    (Get-ModuleVersion) | Select-Object -Property "LocalManifestVersion", "PSGalleryVersion" | Out-Host
+    #module manifest prerelease string
+    #does this already get displayed in the published module manifest version?
+    #okay, the version and the module prerelease string are separate things
 
-    #prompt for new version number
-    Do {
-        Write-Host ""
-        $NewModuleVersion=(Read-Host "Enter new module version number")
-        $Confirm=(Read-Host "New version will be $NewModuleVersion. Continue? (y/n)")
-    }
-    Until ($Confirm -eq "y")
+    #updated csproj version
 
-    #update manifest
-    Write-Host "Updating module manifest..."
-    Update-ModuleManifest -Path $ManifestLocation -ModuleVersion $NewModuleVersion
+    #csproj prerelease element?
 
-    #publish module
-    Write-Host "Publishing module to the PSGallery..."
-    Publish-Module -Path "..\..\Send-MailKitMessage" -NuGetApiKey $env:PowerShellGalleryAPIKey  #yes this goes outside the root Send-MailKitMessage directory, you just pass Publish-Module the directory which contains the module
+    #updated csproj assembly version
 
-    #display current local manifest version and PSGallery module version
-    Write-Host "Getting module versions:"
-    (Get-ModuleVersion) | Select-Object -Property "LocalManifestVersion", "PSGalleryVersion" | Out-Host
+    #updated csproj file version
 
-    #open module page in PowerShell gallery
-    Start-Process "https://www.powershellgallery.com/packages/Send-MailKitMessage"
+    #update the module manifest
+    Update-ModuleManifest -Path $ModuleManifestPath -ModuleVersion $UpdatedModuleManifestVersion -Prerelease $UpdatedModuleManifestPrereleaseString
 
-    Write-Host "If all looks as it should the update can be committed to source control"
+    #update the .csproj file
+    $CSProjFile=[xml](Get-Content -Raw -Path $CSProjFilePath)
+    $CSProjFile.Project.PropertyGroup.Version=$UpdatedCSProjVersion
+    $CSProjFile.Project.PropertyGroup.AssemblyVersion=$UpdatedCSProjAssemblyVersion
+    $CSProjFile.Project.PropertyGroup.FileVersion=$UpdatedCSProjFileVersion
+    $CSProjFile.Save($CSProjFilePath)
 
-}
-Catch{
+    #now I think I can do the publish (I'm not sure if I can put PowerShell variables in or if I need to build the whole string first or something)
+    #I forget there may be a prerelease thing involved in the csproj file
+    dotnet publish --configuration "Release" --output $PublishDirectory /p:Version=$UpdatedCSProjVersion /p:AssemblyVersion=$UpdatedCSProjAssemblyVersion /p:FileVersion=$UpdatedCSProjFileVersion
 
-    Throw $Error[0]
+    #then if the publish succeeds I think I could publish to the PSGallery
+
+    #probably clean up the module download directory and any parents I created
 
 }
 
+Catch {
+
+    #error log
+    #$ErrorData+=New-Object -TypeName PSCustomObject -Property @{"Date"=(Get-Date).ToString(); "ErrorMessage"=$Error[0].ToString()}    #don't use @Date for the date, this section needs to be completely independent so nothing can ever interfere with the error log being created
+    #$ErrorData | Select-Object Date,ErrorMessage | Export-Csv -Path $ErrorLogLocation -Append -NoTypeInformation
+
+    #return value
+    Exit 1
+    
+}
+
+Finally {
 
 
-
-
+}
