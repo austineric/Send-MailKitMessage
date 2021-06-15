@@ -179,7 +179,8 @@ DocProject/Help/Html2
 DocProject/Help/html
 
 # Click-Once directory
-publish/
+#manually commenting this out since I am using a Publish folder
+# publish/
 
 # Publish Web Output
 *.[Pp]ublish.xml
