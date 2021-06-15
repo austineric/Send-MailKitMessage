@@ -1,12 +1,9 @@
-﻿using System;
+﻿using MimeKit;
+using System;
 using System.IO;
 using System.Management.Automation;
-using System.Management.Automation.Runspaces;
 using System.Reflection;
 using System.Web;
-using MailKit;
-using MimeKit;
-using Org.BouncyCastle;
 
 namespace Send_MailKitMessage
 {
@@ -72,25 +69,25 @@ namespace Send_MailKitMessage
             Mandatory = true,
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
-        public MimeKit.MailboxAddress From { get; set; }
+        public MailboxAddress From { get; set; }
 
         [Parameter(
             Mandatory = true,
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
-        public MimeKit.InternetAddressList RecipientList { get; set; }
+        public InternetAddressList RecipientList { get; set; }
 
         [Parameter(
             Mandatory = false,
             ValueFromPipeline = false,
             ValueFromPipelineByPropertyName = true)]
-        public MimeKit.InternetAddressList CCList { get; set; }
+        public InternetAddressList CCList { get; set; }
 
         [Parameter(
             Mandatory = false,
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
-        public MimeKit.InternetAddressList BCCList { get; set; }
+        public InternetAddressList BCCList { get; set; }
 
         [Parameter(
             Mandatory = false,
