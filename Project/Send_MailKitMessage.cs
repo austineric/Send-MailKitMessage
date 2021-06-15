@@ -21,14 +21,6 @@ namespace Send_MailKitMessage
         }
     }
 
-    public class ModuleCleanup : IModuleAssemblyCleanup
-    {
-        public void OnRemove(PSModuleInfo psModuleInfo)
-        {
-            AppDomain.CurrentDomain.AssemblyResolve -= DependencyResolution.ResolveSystemBuffers;
-        }
-    }
-
     internal static class DependencyResolution
     {
         private static readonly string CurrentLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -47,7 +39,6 @@ namespace Send_MailKitMessage
             return Assembly.LoadFrom(Path.Combine(CurrentLocation, "System.Buffers.dll"));
         }
     }
-
 
     [Cmdlet(VerbsCommunications.Send, "MailKitMessage")]
     [OutputType(typeof(void))]
@@ -128,7 +119,7 @@ namespace Send_MailKitMessage
         // This method gets called once for each cmdlet in the pipeline when the pipeline starts executing
         protected override void BeginProcessing()
         {
-            WriteVerbose("Begin!");
+            
         }
 
         // This method will be called for each input received from the pipeline to this cmdlet; if no input is received, this method is not called
@@ -194,10 +185,6 @@ namespace Send_MailKitMessage
                 Client.Connect(SMTPServer, Port, (UseSecureConnectionIfAvailable.IsPresent ? MailKit.Security.SecureSocketOptions.Auto : MailKit.Security.SecureSocketOptions.None));
                 if (Credential != null)
                 {
-                    //IntPtr SecurePassword = System.Runtime.InteropServices.Marshal.SecureStringToBSTR(Credential.Password);
-                    //string PlainTextPassword = System.Runtime.InteropServices.Marshal.PtrToStringAuto(SecurePassword);
-                    //Client.Authenticate(Credential.UserName, PlainTextPassword);
-
                     Client.Authenticate(Credential.UserName, (System.Runtime.InteropServices.Marshal.PtrToStringAuto(System.Runtime.InteropServices.Marshal.SecureStringToBSTR(Credential.Password))));
                 }
                 Client.Send(Message);
@@ -220,13 +207,15 @@ namespace Send_MailKitMessage
         // This method will be called once at the end of pipeline execution; if no input is received, this method is not called
         protected override void EndProcessing()
         {
-            WriteVerbose("End!");
+            
         }
     }
 
-    public class FavoriteStuff
+    public class ModuleCleanup : IModuleAssemblyCleanup
     {
-        public int FavoriteNumber { get; set; }
-        public string FavoritePet { get; set; }
+        public void OnRemove(PSModuleInfo psModuleInfo)
+        {
+            AppDomain.CurrentDomain.AssemblyResolve -= DependencyResolution.ResolveSystemBuffers;
+        }
     }
 }
