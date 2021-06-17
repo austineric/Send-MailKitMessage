@@ -36,6 +36,9 @@ Try {
     $UpdatedCSProjAssemblyVersion=[string]::Empty
     $UpdatedCSProjFileVersion=[string]::Empty
 
+    #script elements
+    $ValuesConfirmed=[string]::Empty
+
     #--------------#
 
     #get the published module manifest
@@ -45,11 +48,6 @@ Try {
     #get the published csproj file
     $PublishedCSProjFile=[xml](Get-Content -Raw -Path $PublishedCSProjPath)
     
-    Write-Host ""
-    Write-Host "The published module manifest version is $($PublishedModuleManifest."ModuleVersion" + ([string]::IsNullOrWhiteSpace($PublishedModuleManifest.PrivateData.PSData.Prerelease) ? """" : "-" + $PublishedModuleManifest.PrivateData.PSData.Prerelease))"
-    Write-Host ""   #I should make a copy of the manifest, set a prerelease string, import it, and make sure I can display it correctly
-    Write-Host ""
-
       # So the script needs to:
         # display current values
         # prompt for new values (including prerelease)
@@ -69,43 +67,80 @@ Try {
     
     #prompt for new value(s), including prerelease, major/minor/build/revision, etc
 
-    #updated module manifest version
-    Write-Host ""
-    Write-Host "First: the module manifest version (the version the PSGallery uses)"
-    Write-Host "Versioning is MAJOR.MINOR.PATCH"
-    Write-Host "MAJOR version when you make incompatible API changes"
-    Write-Host "MINOR version when you add functionality in a backwards compatible manner"
-    Write-Host "PATCH version when you make backwards compatible bug fixes"
-    Write-Host "The published module manifest version is $($PublishedModuleManifest."ModuleVersion")"
-    $UpdatedModuleManifestVersion=(Read-Host "Enter new module version")
-    #probably confirm the module manifest version
+    Do {
 
-    #module manifest prerelease string
-    #note that the dash is optional https://docs.microsoft.com/en-us/powershell/scripting/gallery/concepts/module-prerelease-support?view=powershell-7.1
-    #does this already get displayed in the published module manifest version?
-    #okay, the version and the module prerelease string are separate things
-    #according to this https://www.powershellgallery.com/packages/safeguard-devops/2.0.57014-pre I need to put the dash in myself
-    if ([string]::IsNullOrWhiteSpace($PublishedModuleManifest.PrivateData.PSData.Prerelease))
-    {
-        #prompt if new prerelease version should be used and confirm
-        #I'm not going to put the dash in, it just muddies things up
+        #updated module manifest version
+        Do {
+            Write-Host ""
+            Write-Host "First: the module manifest version (the version the PSGallery uses)"
+            Write-Host "Versioning is MAJOR.MINOR.PATCH"
+            Write-Host "MAJOR version when you make incompatible API changes"
+            Write-Host "MINOR version when you add functionality in a backwards compatible manner"
+            Write-Host "PATCH version when you make backwards compatible bug fixes"
+            Write-Host "The published module manifest version is $($PublishedModuleManifest."ModuleVersion")"
+            $UpdatedModuleManifestVersion=(Read-Host "Enter new module version (the prerelease value, if applicable, will be obtained next)")
+        }
+        Until (-not ([string]::IsNullOrWhiteSpace($UpdatedModuleManifestVersion)))
+        
+        #module manifest prerelease string
+        #note that the dash is optional https://docs.microsoft.com/en-us/powershell/scripting/gallery/concepts/module-prerelease-support?view=powershell-7.1
+        #does this already get displayed in the published module manifest version?
+        #okay, the version and the module prerelease string are separate things
+        #according to this https://www.powershellgallery.com/packages/safeguard-devops/2.0.57014-pre I need to put the dash in myself
+        #I don't believe a dash is required https://docs.microsoft.com/en-us/powershell/scripting/gallery/concepts/module-prerelease-support?view=powershell-7.1
+        Write-Host ""
+        Write-Host "Second, the prerelease value (if applicable) which gets appended on to the module manifest version"
+        if ([string]::IsNullOrWhiteSpace($PublishedModuleManifest.PrivateData.PSData.Prerelease))
+        {
+            Write-Host "The published module manifest does not have a prerelease value"        
+
+        }
+        else
+        {
+            Write-Host "The published module prerelease value is `"$($PublishedModuleManifest.PrivateData.PSData.Prerelease)`""
+        }
+        $UpdatedModuleManifestPrereleaseString=(Read-Host "Enter the new prerelease value, ie `"preview1`" (no dash) (if no prerelease value is applicable just hit Enter)")
+        
+        #updated csproj version (shows as "Product Version" when viewing the file properties in Windows Explorer)
+        Do {
+            Write-Host ""
+            Write-Host "Third, the csproj version which shows as `"Product Version`" when viewing the file properties in Windows Explorer"
+            Write-Host "The published csproj version is $($PublishedCSProjFile.Project.PropertyGroup.Version)"
+            #I should put some guidelines on versioning here
+            $UpdatedCSProjVersion=(Read-Host "Enter the new csproj version")
+        }
+        Until (-not ([string]::IsNullOrWhiteSpace($UpdatedCSProjVersion)))
+
+        #updated assembly version
+        Do {
+            Write-Host ""
+            Write-Host "Fourth, the csproj assembly version which affects the runtime when loaded but does not get shown in Windows Explorer"
+            Write-Host "The published csproj assembly version is $($PublishedCSProjFile.Project.PropertyGroup.AssemblyVersion)"
+            #I should put some guidelines on versioning here
+            $UpdatedCSProjAssemblyVersion=(Read-Host "Enter the new csproj assembly version")
+        }
+        Until (-not ([string]::IsNullOrWhiteSpace($UpdatedCSProjAssemblyVersion)))
+
+        #updated file version
+        Do {
+            Write-Host ""
+            Write-Host "Last, the csproj file version which shows as `"File Version`" when viewing the file properties in Windows Explorer"
+            Write-Host "The published csproj file version is $($PublishedCSProjFile.Project.PropertyGroup.FileVersion)"
+            #I should put some guidelines on versioning here
+            $UpdatedCSProjFileVersion=(Read-Host "Enter the new csproj file version")
+        }
+        Until (-not ([string]::IsNullOrWhiteSpace($UpdatedCSProjFileVersion)))
+
+        Write-Host ""
+        Write-Host "The new module manifest version will be $($UpdatedModuleManifestVersion + ([string]::IsNullOrWhiteSpace($UpdatedModuleManifestPrereleaseString) ? [string]::Empty : ($UpdatedModuleManifestPrereleaseString.Contains("-") ? [string]::Empty : "-") + $UpdatedModuleManifestPrereleaseString))"
+        Write-Host "The new csproj version will be $UpdatedCSProjVersion"
+        Write-Host "The new csproj assembly version will be $UpdatedCSProjAssemblyVersion"
+        Write-Host "The new csproj file version will be $UpdatedCSProjFileVersion"
+
+        $ValuesConfirmed=(Read-Host "Proceed with publishing? (`"y`" to proceed, `"n`" to re-enter values)")
+
     }
-    else
-    {
-        Write-Host "The published module prerelease value is `"$($PublishedModuleManifest.PrivateData.PSData.Prerelease)`""
-        #no dash required
-        #prompt if new prerelease version should be used and confirm
-        #I'm not going to put the dash in, it just muddies things up
-    }
-    
-
-    #updated csproj version
-
-    #csproj prerelease element?
-
-    #updated csproj assembly version
-
-    #updated csproj file version
+    Until ($ValuesConfirmed -eq "y")
 
     #update the module manifest
     Update-ModuleManifest -Path $ModuleManifestPath -ModuleVersion $UpdatedModuleManifestVersion -Prerelease $UpdatedModuleManifestPrereleaseString
