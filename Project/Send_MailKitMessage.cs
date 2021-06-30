@@ -79,7 +79,7 @@ namespace Send_MailKitMessage
 
         [Parameter(
             Mandatory = false,
-            ValueFromPipeline = false,
+            ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
         public InternetAddressList CCList { get; set; }
 
@@ -137,13 +137,13 @@ namespace Send_MailKitMessage
                 Message.To.AddRange(RecipientList);
 
                 //cc
-                if (CCList.Count > 0)
+                if (CCList?.Count > 0)
                 {
                     Message.Cc.AddRange(CCList);
                 }
 
                 //bcc
-                if (BCCList.Count > 0)
+                if (BCCList?.Count > 0)
                 {
                     Message.Bcc.AddRange(BCCList);
                 }
@@ -167,7 +167,7 @@ namespace Send_MailKitMessage
                 }
 
                 //attachment(s)
-                if (AttachmentList.Length > 0)
+                if (AttachmentList?.Length > 0)
                 {
                     foreach (string Attachment in AttachmentList)
                     {
