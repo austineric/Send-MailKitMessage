@@ -74,6 +74,9 @@ Send-MailKitMessage @Parameters
 ```
 
 # Releases
+### 3.2.0-preview1
+* Add support for Windows PowerShell
+
 ### 3.1.0
 * Changed UseSecureConnectionIfAvailable parameter type from [bool] to [switch]
 
