@@ -37,80 +37,56 @@ namespace Send_MailKitMessage
         }
     }
 
-    [Cmdlet(VerbsCommunications.Send, "MailKitMessage")]
+    [Cmdlet(VerbsCommunications.Send, "MailKitMessage")]    //I think the [CmdletBinding] piece is applicable to true PowerShell functions, not compiled cmdlets https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_cmdletbindingattribute?view=powershell-7.1#long-description
     [OutputType(typeof(void))]
     public class Send_MailKitMessage : PSCmdlet
     {
         [Parameter(
-            Mandatory = false,
-            ValueFromPipeline = true,
-            ValueFromPipelineByPropertyName = true)]
+            Mandatory = false)]
         public SwitchParameter UseSecureConnectionIfAvailable { get; set; } = SwitchParameter.Present;  //default to present if no value is passed
 
         [Parameter(
-            Mandatory = false,
-            ValueFromPipeline = true,
-            ValueFromPipelineByPropertyName = true)]
+            Mandatory = false)]
         public PSCredential Credential { get; set; }
 
         [Parameter(
-            Mandatory = true,
-            ValueFromPipeline = true,
-            ValueFromPipelineByPropertyName = true)]
+            Mandatory = true)]
         public string SMTPServer { get; set; }
 
         [Parameter(
-            Mandatory = true,
-            ValueFromPipeline = true,
-            ValueFromPipelineByPropertyName = true)]
+            Mandatory = true)]
         public int Port { get; set; }
 
         [Parameter(
-            Mandatory = true,
-            ValueFromPipeline = true,
-            ValueFromPipelineByPropertyName = true)]
+            Mandatory = true)]
         public MailboxAddress From { get; set; }
 
         [Parameter(
-            Mandatory = true,
-            ValueFromPipeline = true,
-            ValueFromPipelineByPropertyName = true)]
+            Mandatory = true)]
         public InternetAddressList RecipientList { get; set; }
 
         [Parameter(
-            Mandatory = false,
-            ValueFromPipeline = true,
-            ValueFromPipelineByPropertyName = true)]
+            Mandatory = false)]
         public InternetAddressList CCList { get; set; }
 
         [Parameter(
-            Mandatory = false,
-            ValueFromPipeline = true,
-            ValueFromPipelineByPropertyName = true)]
+            Mandatory = false)]
         public InternetAddressList BCCList { get; set; }
 
         [Parameter(
-            Mandatory = false,
-            ValueFromPipeline = true,
-            ValueFromPipelineByPropertyName = true)]
+            Mandatory = false)]
         public string Subject { get; set; }
 
         [Parameter(
-            Mandatory = false,
-            ValueFromPipeline = true,
-            ValueFromPipelineByPropertyName = true)]
+            Mandatory = false)]
         public string TextBody { get; set; }
 
         [Parameter(
-            Mandatory = false,
-            ValueFromPipeline = true,
-            ValueFromPipelineByPropertyName = true)]
+            Mandatory = false)]
         public string HTMLBody { get; set; }
 
         [Parameter(
-            Mandatory = false,
-            ValueFromPipeline = true,
-            ValueFromPipelineByPropertyName = true)]
+            Mandatory = false)]
         public string[] AttachmentList { get; set; }
 
         // This method gets called once for each cmdlet in the pipeline when the pipeline starts executing
