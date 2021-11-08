@@ -6,8 +6,8 @@
 # Description:  Publish Send-MailKitMessage to the PowerShell Gallery
 ####################################
 
-#versioning is not particularly simple (article is https://docs.microsoft.com/en-us/dotnet/standard/library-guidance/versioning)
-# Article                           | What I see
+#versioning is not particularly simple (https://docs.microsoft.com/en-us/dotnet/standard/library-guidance/versioning)
+# Listed in documentation           | What I see
 # --------------------------------- | ----------
 # PSGallery module manifest version | PSGallery module manifest version
 # Not referenced                    | .csproj "Version" / "Product Version" in Windows Explorer; does not affect runtime
@@ -19,38 +19,67 @@ Try {
 
     #common variables
     $CurrentDirectory=[string]::IsNullOrWhiteSpace($PSScriptRoot) ? (Get-Location).Path : $PSScriptRoot
-    $ErrorActionPreference="Stop"
+    $ErrorActionPreference = "Stop"
     
     #project elements
-    $ProjectCSProjFilePath=(Join-Path -Path $CurrentDirectory -ChildPath ".." -AdditionalChildPath "Project", "Send-MailKitMessage.csproj")
+    $ProjectCSProjFilePath = Join-Path -Path $CurrentDirectory -ChildPath ".." -AdditionalChildPath "Project", "Send-MailKitMessage.csproj"
 
     #published elements
-    $PublishedModuleManifest=@{}
-    $PublishedCSProjFile=[xml]::new()
-    $PublishDirectory=(Join-Path -Path $CurrentDirectory -ChildPath ".." -AdditionalChildPath "Publish", "Send-MailKitMessage")
-    $PublishedModuleManifestPath=(Join-Path -Path $PublishDirectory -ChildPath "Send-MailKitMessage.psd1")
-    $PublishedCSProjPath=(Join-Path -Path $PublishDirectory -ChildPath "Send-MailKitMessage.csproj")
+    $PublishedModuleDownloadDirectory = [string]::Empty
+    $PublishedModuleURL = [string]::Empty
+    $PublishedModuleVersionStringStart = [int]::new()
+    $PublishedModuleVersionStringLength = [int]::new()
+    $PublishedModuleVersion = [string]::Empty
+    $PublishedModuleManifest = [hashtable]::new()
+    $PublishedModuleManifestPath = [string]::Empty
+    $PublishedCSProjFile = [xml]::new()
+    $PublishedCSProjPath = [string]::Empty
 
     #updated version values
-    $UpdatedModuleManifestVersion=[string]::Empty
-    $UpdatedModuleManifestPrereleaseString=[string]::Empty
-    $UpdatedCSProjVersion=[string]::Empty
-    $UpdatedCSProjAssemblyVersion=[string]::Empty
-    $UpdatedCSProjFileVersion=[string]::Empty
+    $UpdatedModuleManifestVersion = [string]::Empty
+    $UpdatedModuleManifestPrereleaseString = [string]::Empty
+    $UpdatedCSProjVersion = [string]::Empty
+    $UpdatedCSProjAssemblyVersion = [string]::Empty
+    $UpdatedCSProjFileVersion = [string]::Empty
 
     #script elements
-    $ValuesConfirmed=[string]::Empty
+    $PublishDirectory = Join-Path -Path $CurrentDirectory -ChildPath ".." -AdditionalChildPath "Publish", "Send-MailKitMessage"
+    $ValuesConfirmed = [string]::Empty
 
     #--------------#
 
-    #get the published module manifest
-    $PublishedModuleManifest=(Import-PowerShellDataFile -Path $PublishedModuleManifestPath)
+    Write-Host ""
+    Write-Host "Downloading latest published module version from the PSGallery..."
 
-    #get the published csproj file
-    $PublishedCSProjFile=[xml](Get-Content -Raw -Path $PublishedCSProjPath)
+    #determine a temporary download location for the latest module published to the PowerShell Gallery
+    do{
+        $PublishedModuleDownloadDirectory = Join-Path -Path $env:TEMP -ChildPath (Get-Random).ToString()
+    }
+    until ( -not (Test-Path -Path $PublishedModuleDownloadDirectory))
+
+    #set additional paths based on $PublishedModuleDownloadDirectory
+    $PublishedModuleManifestPath = Join-Path -Path $PublishedModuleDownloadDirectory -ChildPath "Send-MailKitMessage.psd1"
+    $PublishedCSProjPath = Join-Path -Path $PublishedModuleDownloadDirectory -ChildPath "Send-MailKitMessage.csproj"
+    
+    #get latest module published to the PowerShell Gallery (I can't find official documentation of querying the api but there are some existing examples that I worked off of - https://www.powershellgallery.com/packages/BuildHelpers/0.0.28/Content/Public%5CFind-NugetPackage.ps1)
+    $PublishedModuleURL = Invoke-RestMethod "https://www.powershellgallery.com/api/v2/Packages?`$filter=Id eq 'Send-MailKitMessage'" | Sort-Object -Property "updated" -Descending | Select-Object -Property "id" -ExpandProperty "id" -First 1
+    $PublishedModuleVersionStringStart = $PublishedModuleURL.IndexOf("Version") + 9
+    $PublishedModuleVersionStringLength = $PublishedModuleURL.IndexOf("'", $PublishedModuleVersionStringStart) - $PublishedModuleVersionStringStart
+    $PublishedModuleVersion = $PublishedModuleURL.Substring($PublishedModuleVersionStringStart, $PublishedModuleVersionStringLength)
+
+    #download latest version
+    Invoke-WebRequest -Uri "https://www.powershellgallery.com/api/v2/package/Send-MailKitMessage/$PublishedModuleVersion" -OutFile "$PublishedModuleDownloadDirectory.zip" | Out-Null
+
+    #unzip the zip file
+    Expand-Archive -Path "$PublishedModuleDownloadDirectory.zip" -DestinationPath $PublishedModuleDownloadDirectory
+
+    #get the published module manifest data
+    $PublishedModuleManifest = Import-PowerShellDataFile -Path $PublishedModuleManifestPath
+
+    #get the published csproj file data
+    $PublishedCSProjFile = [xml](Get-Content -Raw -Path $PublishedCSProjPath)
     
     #display the current versions
-    Write-Host ""
     Write-Host "The published module manifest version is $($PublishedModuleManifest."ModuleVersion" + ([string]::IsNullOrWhiteSpace($PublishedModuleManifest.PrivateData.PSData.Prerelease) ? [string]::Empty : ($PublishedModuleManifest.PrivateData.PSData.Prerelease.Contains("-") ? [string]::Empty : "-") + $PublishedModuleManifest.PrivateData.PSData.Prerelease))"
     Write-Host "The published csproj version is $($PublishedCSProjFile.Project.PropertyGroup.Version)"
     Write-Host "The published csproj assembly version is $($PublishedCSProjFile.Project.PropertyGroup.AssemblyVersion)"
@@ -84,29 +113,29 @@ Try {
         {
             Write-Host "The published module prerelease value is `"$($PublishedModuleManifest.PrivateData.PSData.Prerelease)`""
         }
-        $UpdatedModuleManifestPrereleaseString=(Read-Host "Enter the new prerelease value, ie `"preview1`" (no dash) (if no prerelease value is applicable just hit Enter)")
+        $UpdatedModuleManifestPrereleaseString = (Read-Host "Enter the new prerelease value, ie `"preview1`" (no dash) (if no prerelease value is applicable just hit Enter)")
         
         #updated csproj version (shows as "Product Version" when viewing the file properties in Windows Explorer; does not affect runtime; just set to the same value as the $UpdatedModuleManifestVersion and include the prerelease value if applicable)
         Write-Host ""
         Write-Host "The csproj version (doesn't affect anything; shows as `"Product Version`" when viewing the file properties in Windows Explorer) has no conventions and will be set to the same value as the updated module manifest version"
         Write-Host "The published csproj version is $($PublishedCSProjFile.Project.PropertyGroup.Version)"
-        $UpdatedCSProjVersion=$UpdatedModuleManifestVersion + ([string]::IsNullOrWhiteSpace($UpdatedModuleManifestPrereleaseString) ? [string]::Empty : ($UpdatedModuleManifestPrereleaseString.Contains("-") ? [string]::Empty : "-") + $UpdatedModuleManifestPrereleaseString)
+        $UpdatedCSProjVersion = $UpdatedModuleManifestVersion + ([string]::IsNullOrWhiteSpace($UpdatedModuleManifestPrereleaseString) ? [string]::Empty : ($UpdatedModuleManifestPrereleaseString.Contains("-") ? [string]::Empty : "-") + $UpdatedModuleManifestPrereleaseString)
         Write-Host "The updated csproj version will be $UpdatedCSProjVersion"
 
         #updated csproj assembly version
         Write-Host ""
         Write-Host "The csproj assembly version (affects the runtime; does not get shown in Windows Explorer) should be set to the MAJOR version of the updated module manifest version"
         Write-Host "The published csproj assembly version is $($PublishedCSProjFile.Project.PropertyGroup.AssemblyVersion)"
-        $UpdatedCSProjAssemblyVersion=$UpdatedModuleManifestVersion.Substring(0, ($UpdatedModuleManifestVersion).IndexOf(".")) + ".0.0"
+        $UpdatedCSProjAssemblyVersion = $UpdatedModuleManifestVersion.Substring(0, ($UpdatedModuleManifestVersion).IndexOf(".")) + ".0.0"
         Write-Host "The updated csproj assembly version will be $UpdatedCSProjAssemblyVersion"
 
         #updated file version
         Write-Host ""
         Write-Host "The csproj file version (doesn't affect anything; shows as `"File Version`" when viewing the file properties in Windows Explorer) should be set to MAJOR.MINOR.BUILD.REVISION"
         Write-Host "The published csproj file version is $($PublishedCSProjFile.Project.PropertyGroup.FileVersion)"
-        [int]$Revision=($PublishedCSProjFile.Project.PropertyGroup.FileVersion).Substring($PublishedCSProjFile.Project.PropertyGroup.FileVersion.LastIndexOf(".") + 1)
+        [int]$Revision = ($PublishedCSProjFile.Project.PropertyGroup.FileVersion).Substring($PublishedCSProjFile.Project.PropertyGroup.FileVersion.LastIndexOf(".") + 1)
         $Revision++
-        $UpdatedCSProjFileVersion=$UpdatedModuleManifestVersion + "." + $Revision.ToString()
+        $UpdatedCSProjFileVersion = $UpdatedModuleManifestVersion + "." + $Revision.ToString()
         Write-Host "The updated csproj file version will be $UpdatedCSProjFileVersion"
         
         Write-Host ""
@@ -116,36 +145,40 @@ Try {
         Write-Host "The new csproj file version will be $UpdatedCSProjFileVersion"
 
         Write-Host ""
-        $ValuesConfirmed=(Read-Host "Proceed with publishing? (`"y`" to proceed, `"n`" to re-enter values)")
+        $ValuesConfirmed = (Read-Host "Proceed with publishing? (`"y`" to proceed, `"n`" to re-enter values)")
 
     }
     Until ($ValuesConfirmed -eq "y")
 
     #update the .csproj file
-    $CSProjFile=[xml](Get-Content -Raw -Path $ProjectCSProjFilePath)
-    $CSProjFile.Project.PropertyGroup.Version=$UpdatedCSProjVersion
-    $CSProjFile.Project.PropertyGroup.AssemblyVersion=$UpdatedCSProjAssemblyVersion
-    $CSProjFile.Project.PropertyGroup.FileVersion=$UpdatedCSProjFileVersion
+    Write-Host "Updating the .csproj file..."
+    $CSProjFile = [xml](Get-Content -Raw -Path $ProjectCSProjFilePath)
+    $CSProjFile.Project.PropertyGroup.Version = $UpdatedCSProjVersion
+    $CSProjFile.Project.PropertyGroup.AssemblyVersion = $UpdatedCSProjAssemblyVersion
+    $CSProjFile.Project.PropertyGroup.FileVersion = $UpdatedCSProjFileVersion
     $CSProjFile.Save($ProjectCSProjFilePath)
 
-    #run dotnet publish (the build part of dotnet publish copies the .csproj file into the "Publish" directory to become the source of published version information later)
+    #run dotnet publish (the build part of dotnet publish copies the .csproj file into the "Publish" directory to be included in the published module and to serve as the source of published version information later)
+    Write-Host "Building the project..."
     dotnet publish $ProjectCSProjFilePath --configuration "Release" --output $PublishDirectory /p:Version=$UpdatedCSProjVersion /p:AssemblyVersion=$UpdatedCSProjAssemblyVersion /p:FileVersion=$UpdatedCSProjFileVersion
 
-    #update the module manifest (run in the "Publish" directory after dotnet build since the module manifest update process checks for the included assemblies)
+    #update the module manifest (run in the "Publish" directory after dotnet publish since the module manifest update process ensures the additional required assemblies are present)
+    Write-Host "Updating the module manifest..."
     Update-ModuleManifest -Path $PublishedModuleManifestPath -ModuleVersion $UpdatedModuleManifestVersion -Prerelease $UpdatedModuleManifestPrereleaseString
 
-    #publish to the PSGallery
-    Publish-Module -Path $PublishDirectory -Name "Send-MailKitMessage" -Exclude "Send-MailKitMessage.csproj" -AllowPrerelease -NuGetApiKey $env:PSGalleryAPIKey -WhatIf -Verbose #I wonder if something is broke here, because it seems like this should work
-    Publish-Module -Path $PublishDirectory -Repository PSGallery -NuGetApiKey $env:PSGalleryAPIKey -WhatIf #so this works
-    Publish-Module -Path $PublishDirectory -Exclude "Send-MailKitMessage.csproj" -Repository PSGallery -NuGetApiKey $env:PSGalleryAPIKey -WhatIf -Verbose
-    Publish-Module -Path $PublishDirectory -Repository PSGallery -NuGetApiKey $env:PSGalleryAPIKey -Exclude "Send-MailKitMessage.csproj" -WhatIf #doesn't work
-    Publish-Module -Path $PublishDirectory -Repository PSGallery -AllowPrerelease -NuGetApiKey $env:PSGalleryAPIKey -WhatIf #doesn't work
-     -Exclude "Send-MailKitMessage.csproj" -AllowPrerelease
+    #publish the module
+    Write-Host "Publishing module to the PSGallery..."
+    Publish-Module -Path $PublishDirectory -Repository PSGallery -NuGetApiKey $env:PowerShellGalleryAPIKey
+
+    Write-Host "Success"
 
 }
-
 Catch {
-
     Throw $Error[0]
-	
+}
+Finally {
+    #clean up published module download
+    if (Test-Path -Path $PublishedModuleDownloadDirectory){
+        Remove-Item -Path $PublishedModuleDownloadDirectory -Recurse
+    }
 }
