@@ -40,6 +40,7 @@ if (-not (Test-Path -Path $ParametersFileLocation))
         Password = [string]::Empty
         SMTPServer = [string]::Empty
         Port = [string]::Empty
+        Priority = [string]::Empty
         From = [string]::Empty
         To = [string]::Empty
         CC = [string]::Empty
@@ -70,6 +71,9 @@ $Parameters = @{
 
     #Port (required)
     "Port" = $ParametersFile."Port"
+
+    #Priority (optional)
+    "Priority" = if ([string]::IsNullOrWhiteSpace($ParametersFile."Priority")) { $null } else { [string]$ParametersFile."Priority" }
 
     #Sender (required) (http://www.mimekit.net/docs/html/T_MimeKit_MailboxAddress.htm)
     "From" = [MimeKit.MailboxAddress]$ParametersFile."From"

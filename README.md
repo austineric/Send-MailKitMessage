@@ -23,6 +23,9 @@ $SMTPServer = "SMTPServer";
 #port ([int], required)
 $Port = PortNumber;
 
+#priority ([string], optional)
+$Priority = [string]"Priority"
+
 #sender ([MimeKit.MailboxAddress] http://www.mimekit.net/docs/html/T_MimeKit_MailboxAddress.htm, required)
 $From = [MimeKit.MailboxAddress]"SenderEmailAddress";
 
@@ -92,6 +95,7 @@ $Parameters = @{
     "Credential" = $Credential
     "SMTPServer" = $SMTPServer
     "Port" = $Port
+    "Priority" = $Priority
     "From" = $From
     "RecipientList" = $RecipientList
     "CCList" = $CCList
