@@ -25,6 +25,9 @@ $SMTPServer = "SMTPServer"
 #port ([int], required)
 $Port = PortNumber
 
+#priority ([string], optional)
+$Priority = [string]"Priority"
+
 #sender ([MimeKit.MailboxAddress] http://www.mimekit.net/docs/html/T_MimeKit_MailboxAddress.htm, required)
 $From = [MimeKit.MailboxAddress]"SenderEmailAddress"
 
@@ -59,6 +62,7 @@ $Parameters = @{
     "Credential" = $Credential
     "SMTPServer" = $SMTPServer
     "Port" = $Port
+    "Priority" = $Priority
     "From" = $From
     "RecipientList" = $RecipientList
     "CCList" = $CCList
@@ -74,6 +78,9 @@ Send-MailKitMessage @Parameters
 ```
 
 # Releases
+### 3.2.0-preview2
+* Added parameter for message priority
+
 ### 3.2.0-preview1
 * Add support for Windows PowerShell
 

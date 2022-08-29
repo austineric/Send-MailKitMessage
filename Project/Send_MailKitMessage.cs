@@ -37,6 +37,26 @@ namespace Send_MailKitMessage
         }
     }
 
+    internal static class EmailPriority
+    {
+        public static MessagePriority GetPriority(string priority)
+        {
+            switch (priority)
+            {
+                case "0": return MessagePriority.NonUrgent;
+                case "1": return MessagePriority.Normal;
+                case "2": return MessagePriority.Urgent;
+                case "NonUrgent": return MessagePriority.NonUrgent;
+                case "Normal": return MessagePriority.Normal;
+                case "Urgent": return MessagePriority.Urgent;
+                //Low and High used by Send-MailMessage Cmdlet; including as aliases
+                case "Low": return MessagePriority.NonUrgent;
+                case "High": return MessagePriority.Urgent;
+                default: throw new Exception($"Priority '{priority}' not found. Valid priorities include: NonUrgent, Normal, Urgent.");
+            }
+        }
+    }
+
     [Cmdlet(VerbsCommunications.Send, "MailKitMessage")]    //I think the [CmdletBinding] piece is applicable to true PowerShell functions, not compiled cmdlets https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_cmdletbindingattribute?view=powershell-7.1#long-description
     [OutputType(typeof(void))]
     public class Send_MailKitMessage : PSCmdlet
@@ -56,6 +76,10 @@ namespace Send_MailKitMessage
         [Parameter(
             Mandatory = true)]
         public int Port { get; set; }
+
+        [Parameter(
+            Mandatory = false)]
+        public string Priority { get; set; }
 
         [Parameter(
             Mandatory = true)]
@@ -105,6 +129,11 @@ namespace Send_MailKitMessage
 
             try
             {
+                //priority
+                if (!string.IsNullOrWhiteSpace(Priority))
+                {
+                    Message.Priority = EmailPriority.GetPriority(Priority);
+                }
 
                 //from
                 Message.From.Add(From);
