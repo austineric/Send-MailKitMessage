@@ -4,9 +4,9 @@
     <AssemblyName>Send_MailKitMessage</AssemblyName>
     <Authors>Eric Austin</Authors>
     <PackageId>Send-MailKitMessage</PackageId>
-    <Version>3.2.0-preview2</Version>
+    <Version>3.2.0-preview1</Version>
     <AssemblyVersion>3.0.0</AssemblyVersion>
-    <FileVersion>3.2.0.12</FileVersion>
+    <FileVersion>3.2.0.11</FileVersion>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <!-- this causes the build to include all assemblies in bin/Debug, which is necessary for testing -->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
