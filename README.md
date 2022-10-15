@@ -22,7 +22,7 @@ $Credential = [System.Management.Automation.PSCredential]::new("Username", (Conv
 #SMTP server ([string], required)
 $SMTPServer = "SMTPServer"
 
-#port ([int], required)
+#port ([int], optional)
 $Port = PortNumber
 
 #priority ([string], optional)

@@ -74,8 +74,8 @@ namespace Send_MailKitMessage
         public string SMTPServer { get; set; }
 
         [Parameter(
-            Mandatory = true)]
-        public int Port { get; set; }
+            Mandatory = false)]
+        public int Port { get; set; } = 25; //default to port 25 if no value is passed
 
         [Parameter(
             Mandatory = false)]

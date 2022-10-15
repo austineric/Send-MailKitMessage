@@ -61,8 +61,8 @@ $Parameters = @{
     #SMTP server (required)
     "SMTPServer" = $ParametersFile."SMTPServer"
 
-    #Port (required)
-    "Port" = $ParametersFile."Port"
+    #Port (optional)
+    "Port" = if ([string]::IsNullOrWhiteSpace($ParametersFile."Port")) { 25 } else { $ParametersFile."Port" }
 
     #Priority (optional)
     "Priority" = if ([string]::IsNullOrWhiteSpace($ParametersFile."Priority")) { $null } else { [string]$ParametersFile."Priority" }
