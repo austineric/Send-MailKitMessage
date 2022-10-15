@@ -33,6 +33,7 @@ if (-not (Test-Path -Path $ParametersFileLocation))
         Port = [string]::Empty
         Priority = [string]::Empty
         From = [string]::Empty
+        ReplyTo = [string]::Empty
         To = [string]::Empty
         CC = [string]::Empty
         BCC = [string]::Empty
@@ -68,6 +69,9 @@ $Parameters = @{
 
     #Sender (required) (http://www.mimekit.net/docs/html/T_MimeKit_MailboxAddress.htm)
     "From" = [MimeKit.MailboxAddress]$ParametersFile."From"
+
+    #ReplyTo list (optional) (http://www.mimekit.net/docs/html/T_MimeKit_InternetAddressList.htm)
+    "ReplyToList" = if ([string]::IsNullOrWhiteSpace($ParametersFile."ReplyTo")) { $null } else { [MimeKit.InternetAddressList]$ParametersFile."ReplyTo" }
 
     #Recipient list (at least one recipient required) (http://www.mimekit.net/docs/html/T_MimeKit_InternetAddressList.htm)
     "RecipientList" = [MimeKit.InternetAddressList]$ParametersFile."To"

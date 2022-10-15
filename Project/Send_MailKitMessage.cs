@@ -86,6 +86,10 @@ namespace Send_MailKitMessage
         public MailboxAddress From { get; set; }
 
         [Parameter(
+            Mandatory = false)]
+        public InternetAddressList ReplyToList { get; set; }
+
+        [Parameter(
             Mandatory = true)]
         public InternetAddressList RecipientList { get; set; }
 
@@ -137,6 +141,12 @@ namespace Send_MailKitMessage
 
                 //from
                 Message.From.Add(From);
+
+                //replyto
+                if (ReplyToList?.Count > 0)
+                {
+                    Message.ReplyTo.AddRange(ReplyToList);
+                }
 
                 //to
                 Message.To.AddRange(RecipientList);

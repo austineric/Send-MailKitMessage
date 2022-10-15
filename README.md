@@ -31,6 +31,10 @@ $Priority = [string]"Priority"
 #sender ([MimeKit.MailboxAddress] http://www.mimekit.net/docs/html/T_MimeKit_MailboxAddress.htm, required)
 $From = [MimeKit.MailboxAddress]"SenderEmailAddress"
 
+#replyto list ([MimeKit.InternetAddressList] http://www.mimekit.net/docs/html/T_MimeKit_InternetAddressList.htm, optional)
+$ReplyToList = [MimeKit.InternetAddressList]::new()
+$ReplyToList.Add([MimeKit.InternetAddress]"ReplyTo1EmailAddress")
+
 #recipient list ([MimeKit.InternetAddressList] http://www.mimekit.net/docs/html/T_MimeKit_InternetAddressList.htm, required)
 $RecipientList = [MimeKit.InternetAddressList]::new()
 $RecipientList.Add([MimeKit.InternetAddress]"Recipient1EmailAddress")
@@ -64,6 +68,7 @@ $Parameters = @{
     "Port" = $Port
     "Priority" = $Priority
     "From" = $From
+    "ReplyToList" = $ReplyToList
     "RecipientList" = $RecipientList
     "CCList" = $CCList
     "BCCList" = $BCCList
