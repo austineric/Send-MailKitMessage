@@ -85,18 +85,22 @@ namespace Send_MailKitMessage
             Mandatory = true)]
         public MailboxAddress From { get; set; }
 
+        [Alias("ReplyTo")]
         [Parameter(
             Mandatory = false)]
         public InternetAddressList ReplyToList { get; set; }
 
+        [Alias("To")]
         [Parameter(
             Mandatory = true)]
         public InternetAddressList RecipientList { get; set; }
 
+        [Alias("CC")]
         [Parameter(
             Mandatory = false)]
         public InternetAddressList CCList { get; set; }
 
+        [Alias("BCC")]
         [Parameter(
             Mandatory = false)]
         public InternetAddressList BCCList { get; set; }
@@ -113,6 +117,7 @@ namespace Send_MailKitMessage
             Mandatory = false)]
         public string HTMLBody { get; set; }
 
+        [Alias("Attachments")]
         [Parameter(
             Mandatory = false)]
         public string[] AttachmentList { get; set; }
