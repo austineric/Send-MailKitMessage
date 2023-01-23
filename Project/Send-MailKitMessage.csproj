@@ -29,6 +29,6 @@
   </ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <!-- the post-build command is built within the project properties in Visual Studio -->
-    <Exec Command="::these commands run upon a build from Visual Studio as well as when using &quot;dotnet publish&quot;&#xD;&#xA;&#xD;&#xA;::copy the module manifest to the build directory&#xD;&#xA;copy &quot;$(ProjectDir)\..\Publish\Send-MailKitMessage\Send-MailKitMessage.psd1&quot; &quot;$(ProjectDir)\$(OutDir)&quot;&#xD;&#xA;&#xD;&#xA;::create the publish directory if it does not exist&#xD;&#xA;if not exist &quot;$(ProjectDir)\..\Publish\Send-MailKitMessage&quot; mkdir &quot;$(ProjectDir)\..\Publish\Send-MailKitMessage&quot;&#xD;&#xA;&#xD;&#xA;::copy the .csproj file to the Publish directory&#xD;&#xA;copy &quot;$(ProjectDir)\Send-MailKitMessage.csproj&quot; &quot;$(ProjectDir)\..\Publish\Send-MailKitMessage&quot;" />
+    <Exec Command="::these commands run upon a build from Visual Studio as well as when using &quot;dotnet publish&quot;&#xD;&#xA;&#xD;&#xA;::copy the project's .csproj file to the output directory&#xD;&#xA;copy &quot;$(ProjectDir)\Send-MailKitMessage.csproj&quot; &quot;$(OutDir)&quot;" />
   </Target>
 </Project>
