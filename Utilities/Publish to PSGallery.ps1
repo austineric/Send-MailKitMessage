@@ -48,14 +48,14 @@ Try {
     #--------------#
 
     Write-Host ""
-    Write-Host "Downloading latest published module version from the PSGallery...";
+    Write-Host "Downloading latest module published to the PowerShell Gallery...";
 
     #clear out the published module download directory if it exists
     if (Test-Path -Path $PublishedModuleDownloadDirectory)
     {
         foreach ($File in (Get-ChildItem -Path $PublishedModuleDownloadDirectory))
         {
-            Remove-Item -Path $File."FullName" -Recurse;
+            Remove-Item -Path $File."FullName" -Recurse -Force;
         }
     }
     else    #create the directory if it does not already exist
@@ -108,7 +108,7 @@ Try {
         #manifest prerelease string (dash is not required https://docs.microsoft.com/en-us/powershell/scripting/gallery/concepts/module-prerelease-support?view=powershell-7.1)
         Write-Host "";
         Write-Host "Second, the prerelease value (if applicable; gets appended on to the module manifest version)";
-        if ([string]::IsNullOrWhiteSpace($PublishedManifest.PrivateData.PSData.Prerelease))
+        if ([string]::IsNullOrWhiteSpace($PublishedManifest."PrivateData"."PSData"."Prerelease"))
         {
             Write-Host "The published module manifest does not have a prerelease value";
 
@@ -174,8 +174,8 @@ Try {
     Update-ModuleManifest -Path (Join-Path -Path $ProjectReleaseDirectory -ChildPath $ManifestName) -ModuleVersion $UpdatedManifestVersion -Prerelease $UpdatedManifestPrereleaseString;
 
     #publish the module
-    Write-Host "Publishing module to the PSGallery...";
-    Publish-Module -Path $PublishDirectory -Repository PSGallery -NuGetApiKey $env:PowerShellGalleryAPIKey;
+    #Write-Host "Publishing module to the PSGallery...";
+    #Publish-Module -Path $PublishDirectory -Repository PSGallery -NuGetApiKey $env:PowerShellGalleryAPIKey;
 
     Write-Host "Success";
 
@@ -187,7 +187,7 @@ Finally {
     #clean up published module download
     foreach ($File in (Get-ChildItem -Path $PublishedModuleDownloadDirectory))
     {
-        Remove-Item -Path $File."FullName" -Recurse;
+        Remove-Item -Path $File."FullName" -Recurse -Force;
     }
 
     #reset the progress preference variable
