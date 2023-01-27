@@ -23,7 +23,7 @@ Try {
 
     #project elements
     $ProjectDirectory = Join-Path -Path $CurrentDirectory -ChildPath ".." -AdditionalChildPath "Project";
-    $ProjectPublishDirectory = Join-Path -Path $CurrentDirectory -ChildPath ".." -AdditionalChildPath "Project", "bin", "Publish";
+    $PublishDirectory = Join-Path -Path $CurrentDirectory -ChildPath ".." -AdditionalChildPath "Project", "bin", "Publish";
 
     #published module elements
     $PublishedModuleDownloadDirectory = Join-Path -Path $CurrentDirectory -ChildPath "Published module";
@@ -65,9 +65,9 @@ Try {
     }
 
     #ensure the project publish directory exists
-    if (-not (Test-Path -Path $ProjectPublishDirectory))
+    if (-not (Test-Path -Path $PublishDirectory))
     {
-        New-Item -ItemType Directory -Path $ProjectPublishDirectory | Out-Null;
+        New-Item -ItemType Directory -Path $PublishDirectory | Out-Null;
     }
 
     #download the module from the PowerShell gallery ("Find-Module returns the newest version of a module if no parameters are used that limit the version" - https://learn.microsoft.com/en-us/powershell/module/powershellget/find-module?view=powershell-7.3")
@@ -87,14 +87,14 @@ Try {
     #get the published manifest data
     $PublishedManifestData = Import-PowerShellDataFile -Path (Join-Path -Path $PublishedModuleDirectory -ChildPath $ManifestFileName);
 
-    #get the published csproj file data
+    #get the published .csproj file data
     $PublishedCSProjFileData = [xml](Get-Content -Raw -Path (Join-Path -Path $PublishedModuleDirectory -ChildPath $CSProjFileName));
     
     #display the current versions
     Write-Host "The published module manifest version is $($PublishedManifestData."ModuleVersion" + ([string]::IsNullOrWhiteSpace($PublishedManifestData."PrivateData"."PSData"."Prerelease") ? [string]::Empty : ($PublishedManifestData."PrivateData"."PSData"."Prerelease".Contains("-") ? [string]::Empty : "-") + $PublishedManifestData."PrivateData"."PSData"."Prerelease"))";
-    Write-Host "The published csproj version is $($PublishedCSProjFileData."Project"."PropertyGroup"."Version")";
-    Write-Host "The published csproj assembly version is $($PublishedCSProjFileData."Project"."PropertyGroup"."AssemblyVersion")";
-    Write-Host "The published csproj file version is $($PublishedCSProjFileData."Project"."PropertyGroup"."FileVersion")";
+    Write-Host "The published .csproj version is $($PublishedCSProjFileData."Project"."PropertyGroup"."Version")";
+    Write-Host "The published .csproj assembly version is $($PublishedCSProjFileData."Project"."PropertyGroup"."AssemblyVersion")";
+    Write-Host "The published .csproj file version is $($PublishedCSProjFileData."Project"."PropertyGroup"."FileVersion")";
     
     #prompt for new values
     Do {
@@ -127,32 +127,32 @@ Try {
         
         #updated csproj version (shows as "Product Version" when viewing the file properties in Windows Explorer; does not affect runtime; just set to the same value as the $UpdatedManifestVersion and include the prerelease value if applicable)
         Write-Host "";
-        Write-Host "The csproj version (doesn't affect anything; shows as `"Product Version`" when viewing the file properties in Windows Explorer) has no conventions and will be set to the same value as the updated module manifest version";
-        Write-Host "The published csproj version is $($PublishedCSProjFileData."Project"."PropertyGroup"."Version")";
+        Write-Host "The .csproj version (doesn't affect anything; shows as `"Product Version`" when viewing the file properties in Windows Explorer) has no conventions and will be set to the same value as the updated module manifest version";
+        Write-Host "The published .csproj version is $($PublishedCSProjFileData."Project"."PropertyGroup"."Version")";
         $UpdatedCSProjVersion = $UpdatedManifestVersion + ([string]::IsNullOrWhiteSpace($UpdatedManifestPrereleaseString) ? [string]::Empty : ($UpdatedManifestPrereleaseString.Contains("-") ? [string]::Empty : "-") + $UpdatedManifestPrereleaseString);
-        Write-Host "The updated csproj version will be $UpdatedCSProjVersion";
+        Write-Host "The updated .csproj version will be $UpdatedCSProjVersion";
 
         #updated csproj assembly version
         Write-Host "";
-        Write-Host "The csproj assembly version (affects the runtime; does not get shown in Windows Explorer) should be set to the MAJOR version of the updated module manifest version";
-        Write-Host "The published csproj assembly version is $($PublishedCSProjFileData."Project"."PropertyGroup"."AssemblyVersion")";
+        Write-Host "The .csproj assembly version (affects the runtime; does not get shown in Windows Explorer) should be set to the MAJOR version of the updated module manifest version";
+        Write-Host "The published .csproj assembly version is $($PublishedCSProjFileData."Project"."PropertyGroup"."AssemblyVersion")";
         $UpdatedCSProjAssemblyVersion = $UpdatedManifestVersion.Substring(0, ($UpdatedManifestVersion).IndexOf(".")) + ".0.0";
-        Write-Host "The updated csproj assembly version will be $UpdatedCSProjAssemblyVersion";
+        Write-Host "The updated .csproj assembly version will be $UpdatedCSProjAssemblyVersion";
 
         #updated file version
         Write-Host "";
-        Write-Host "The csproj file version (doesn't affect anything; shows as `"File Version`" when viewing the file properties in Windows Explorer) should be set to MAJOR.MINOR.BUILD.REVISION";
-        Write-Host "The published csproj file version is $($PublishedCSProjFileData."Project"."PropertyGroup"."FileVersion")";
+        Write-Host "The .csproj file version (doesn't affect anything; shows as `"File Version`" when viewing the file properties in Windows Explorer) should be set to MAJOR.MINOR.BUILD.REVISION";
+        Write-Host "The published .csproj file version is $($PublishedCSProjFileData."Project"."PropertyGroup"."FileVersion")";
         [int]$Revision = ($PublishedCSProjFileData."Project"."PropertyGroup"."FileVersion").Substring($PublishedCSProjFileData."Project"."PropertyGroup"."FileVersion".LastIndexOf(".") + 1);
         $Revision++;
         $UpdatedCSProjFileVersion = $UpdatedManifestVersion + "." + $Revision.ToString();
-        Write-Host "The updated csproj file version will be $UpdatedCSProjFileVersion";
+        Write-Host "The updated .csproj file version will be $UpdatedCSProjFileVersion";
         
         Write-Host "";
         Write-Host "The new module manifest version will be $($UpdatedManifestVersion + ([string]::IsNullOrWhiteSpace($UpdatedManifestPrereleaseString) ? [string]::Empty : ($UpdatedManifestPrereleaseString.Contains("-") ? [string]::Empty : "-") + $UpdatedManifestPrereleaseString))";
-        Write-Host "The new csproj version will be $UpdatedCSProjVersion";
-        Write-Host "The new csproj assembly version will be $UpdatedCSProjAssemblyVersion";
-        Write-Host "The new csproj file version will be $UpdatedCSProjFileVersion";
+        Write-Host "The new .csproj version will be $UpdatedCSProjVersion";
+        Write-Host "The new .csproj assembly version will be $UpdatedCSProjAssemblyVersion";
+        Write-Host "The new .csproj file version will be $UpdatedCSProjFileVersion";
 
         Write-Host "";
         $ValuesConfirmed = (Read-Host "Proceed with publishing? (`"y`" to proceed, `"n`" to re-enter values)");
@@ -161,17 +161,17 @@ Try {
 
     #run dotnet publish
     Write-Host "Building the project...";
-    dotnet publish $ProjectDirectory --nologo --configuration "Release" --output $ProjectPublishDirectory /p:Version=$UpdatedCSProjVersion /p:AssemblyVersion=$UpdatedCSProjAssemblyVersion /p:FileVersion=$UpdatedCSProjFileVersion;
+    dotnet publish $ProjectDirectory --nologo --configuration "Release" --output $PublishDirectory /p:Version=$UpdatedCSProjVersion /p:AssemblyVersion=$UpdatedCSProjAssemblyVersion /p:FileVersion=$UpdatedCSProjFileVersion;
 
     #copy the published manifest to the Publish directory
-    Copy-Item -Path (Join-Path -Path $PublishedModuleDirectory -ChildPath $ManifestFileName) -Destination $ProjectPublishDirectory;
+    Copy-Item -Path (Join-Path -Path $PublishedModuleDirectory -ChildPath $ManifestFileName) -Destination $PublishDirectory;
 
     #update the manifest in the Publish directory (note that the module manifest update process ensures all required assemblies are present)
     Write-Host "Updating the module manifest...";
-    Update-ModuleManifest -Path (Join-Path -Path $ProjectPublishDirectory -ChildPath $ManifestFileName) -ModuleVersion $UpdatedManifestVersion -Prerelease $UpdatedManifestPrereleaseString;
+    Update-ModuleManifest -Path (Join-Path -Path $PublishDirectory -ChildPath $ManifestFileName) -ModuleVersion $UpdatedManifestVersion -Prerelease $UpdatedManifestPrereleaseString;
 
     #copy the project .csproj file to the Publish directory (copy the project's .csproj file rather than the published one since the project one may have updated dependency versions etc)
-    Copy-Item -Path (Join-Path -Path $ProjectDirectory -ChildPath $CSProjFileName) -Destination $ProjectPublishDirectory;
+    Copy-Item -Path (Join-Path -Path $ProjectDirectory -ChildPath $CSProjFileName) -Destination $PublishDirectory;
 
     #update the .csproj file
     Write-Host "Updating the .csproj file...";
@@ -179,11 +179,14 @@ Try {
     $UpdatedCSProjFileData."Project"."PropertyGroup"."Version" = $UpdatedCSProjVersion;
     $UpdatedCSProjFileData."Project"."PropertyGroup"."AssemblyVersion" = $UpdatedCSProjAssemblyVersion;
     $UpdatedCSProjFileData."Project"."PropertyGroup"."FileVersion" = $UpdatedCSProjFileVersion;
-    $UpdatedCSProjFileData.Save("$(Join-Path -Path $ProjectPublishDirectory -ChildPath $CSProjFileName)");
+    $UpdatedCSProjFileData.Save("$(Join-Path -Path $PublishDirectory -ChildPath $CSProjFileName)");
 
     #publish the module
     #Write-Host "Publishing module to the PSGallery...";
     #Publish-Module -Path $PublishDirectory -Repository PSGallery -NuGetApiKey $env:PowerShellGalleryAPIKey;
+
+    #overwrite the project's .csproj file with the updated one from the publish directory (Copy-Item's default behavior is to overwrite files if they already exist in the destination)
+    Copy-Item -Path (Join-Path -Path $PublishDirectory -ChildPath $CSProjFileName) -Destination $ProjectDirectory;
 
     Write-Host "Success";
 
