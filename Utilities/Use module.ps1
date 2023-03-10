@@ -1,5 +1,5 @@
 
-#ensure this script is being run from the Dev directory
+#ensure this script is being run from the correct directory
 if ((Get-Item -Path (Get-Location).Path).Name -ne "Utilities")
 {
     Throw "This script needs to be run from the Utilities directory"
@@ -13,11 +13,20 @@ if (($PowerShellEdition -eq "Desktop" -and (Get-Module -ListAvailable | Where-Ob
     Remove-Module -Name "Send-MailKitMessage"
 }
 
+#remove the project manifest from the debug directory
+if (Test-Path -Path "..\Project\bin\Debug\netstandard2.0/Send-MailKitMessage.psd1")
+{
+    Remove-Item -Path "..\Project\bin\Debug\netstandard2.0/Send-MailKitMessage.psd1";
+}
+
+#copy the project manifest to the debug directory
+Copy-Item -Path "..\Project\Send-MailKitMessage.psd1" -Destination "..\Project\bin\Debug\netstandard2.0";
+
 #IMPORTANT: the dll's used by Send-MailKitMessage do not get unloaded unless the session is restarted (the "Kill Terminal" button in Visual Studio Code), failure to restart the session can cause "assembly is already loaded" errors
-Invoke-Expression "using module `"..\Project\bin\Debug\netstandard2.0\Send-MailKitMessage.psd1`""
+Invoke-Expression "using module `"..\Project\bin\Debug\netstandard2.0\Send-MailKitMessage.psd1`"";
 
 #ensure the development version of the module is being used (not the real version if it is installed)
-Get-Module -Name "Send-MailKitMessage" | Select-Object -Property "ModuleBase"
+Get-Module -Name "Send-MailKitMessage" | Select-Object -Property "ModuleBase";
 
 #set parameter file location
 $ParametersFileLocation = ".\Parameters.csv"
@@ -90,4 +99,4 @@ $Parameters = @{
 }
 
 #use Invoke-Expression so that PowerShell doesn't auto-load the Send-MailKitMessage module (which causes problems with trying to use the development version)
-Invoke-Expression "Send-MailKitMessage @Parameters"
+Invoke-Expression "Send-MailKitMessage @Parameters";
