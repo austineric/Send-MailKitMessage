@@ -2,13 +2,17 @@
 
 A replacement for PowerShell's [obsolete Send-MailMessage](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/send-mailmessage?view=powershell-7.1#description) implementing the [Microsoft-recommended MailKit library](https://docs.microsoft.com/en-us/dotnet/api/system.net.mail.smtpclient?view=net-5.0#remarks).
 
-# Installation  
+[Installation](#installation)<br />
+[Usage](#usage)<br />
+[Releases](#releases)<br />
+
+# <a id="installation" />Installation  
 
 **For current user only** (does not require elevated privileges): ```Install-Module -Name "Send-MailKitMessage" -Scope CurrentUser```  
  
 **For all users** (requires elevated privileges): ```Install-Module -Name "Send-MailKitMessage" -Scope AllUsers```  
 
-# Usage
+# <a id="usage" />Usage
 ### Basic
 ```
 using module Send-MailKitMessage;
@@ -102,7 +106,7 @@ $Parameters = @{
 Send-MailKitMessage @Parameters;
 ```
 
-# Releases
+# <a id="releases" />Releases
 ### 3.2.0
 * Add support for Windows PowerShell
 
