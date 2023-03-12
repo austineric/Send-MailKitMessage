@@ -23,7 +23,7 @@ Try {
 
     #project elements
     $ProjectDirectory = Join-Path -Path $CurrentDirectory -ChildPath ".." -AdditionalChildPath "Project";
-    $PublishDirectory = Join-Path -Path $CurrentDirectory -ChildPath ".." -AdditionalChildPath "Project", "bin", "Publish";
+    $PublishDirectory = Join-Path -Path $CurrentDirectory -ChildPath ".." -AdditionalChildPath "Project", "bin", "Publish", "Send-MailKitMessage";    #Publish-Module requires the module to be published into a directory with the same name as the module
 
     #published module elements
     $PublishedModuleDownloadDirectory = Join-Path -Path $CurrentDirectory -ChildPath "Published module";
@@ -125,6 +125,12 @@ Try {
         }
         $UpdatedManifestPrereleaseString = (Read-Host "Enter the new prerelease value, ie `"preview1`" (no dash) (if no prerelease value is applicable just hit Enter)");
         
+        #if no prerelease string was entered then set it to an empty string (since a null value will not override an existing prerelease string in the project manifest when it is copied to the Publish directory)
+        if ($null -eq $UpdatedManifestPrereleaseString)
+        {
+            $UpdatedManifestVersion = "";
+        }
+        
         #updated csproj version (shows as "Product Version" when viewing the file properties in Windows Explorer; does not affect runtime; just set to the same value as the $UpdatedManifestVersion and include the prerelease value if applicable)
         Write-Host "";
         Write-Host "The .csproj version (doesn't affect anything; shows as `"Product Version`" when viewing the file properties in Windows Explorer) has no conventions and will be set to the same value as the updated module manifest version";
@@ -172,7 +178,10 @@ Try {
     dotnet publish $ProjectDirectory --nologo --configuration "Release" --output $PublishDirectory /p:Version=$UpdatedCSProjVersion /p:AssemblyVersion=$UpdatedCSProjAssemblyVersion /p:FileVersion=$UpdatedCSProjFileVersion;
     Write-Host "Build completed";
 
-    #copy the project manifest to the publish directory (copy the project's manifest rather than the published one since the project one may have updated information that needs to be present in the future published one)
+    #remove the "/bin/Release" folder that dotnet build --configuration "Release" automatically creates (having that alongside the "Publish" folder gets confusing)
+    Remove-Item -Path (Join-Path -Path $ProjectDirectory -ChildPath "bin" -AdditionalChildPath "Release") -Recurse;
+
+    #copy the project manifest to the publish directory (copy the project's manifest rather than the published one since the project manifest is considered the "living" one, the published manifests are static)
     Copy-Item -Path (Join-Path -Path $ProjectDirectory -ChildPath $ManifestFileName) -Destination $PublishDirectory;
 
     #update the manifest in the publish directory (note that the module manifest update process ensures all required assemblies are present)
@@ -180,7 +189,15 @@ Try {
     Write-Host "Updating the module manifest...";
     Update-ModuleManifest -Path (Join-Path -Path $PublishDirectory -ChildPath $ManifestFileName) -ModuleVersion $UpdatedManifestVersion -Prerelease $UpdatedManifestPrereleaseString;
 
-    #copy the project .csproj file to the Publish directory (copy the project's .csproj file rather than the published one since the project one may have updated information that needs to be present in the future published one)
+    #if there is no value for the updated manifest prerelease string replace the line in the file with the default value (since Update-ModuleManifest cannot update an existing value (if there is one) to a non-existing value)
+    if ([string]::IsNullOrWhiteSpace($UpdatedManifestPrereleaseString))
+    {
+        (Get-Content -Path (Join-Path -Path $PublishDirectory -ChildPath $ManifestFileName))
+            | ForEach-Object { $_ -replace ".*Prerelease =.*", "        # Prerelease = ''" }    #the ".*" regex matches 0 or more of any character except line breaks
+            | Set-Content -Path (Join-Path -Path $PublishDirectory -ChildPath $ManifestFileName)
+    };
+
+    #copy the project .csproj file to the Publish directory (copy the project's .csproj file rather than the published one since the project one is considered the "living" one, the publish .csproj files are static)
     Copy-Item -Path (Join-Path -Path $ProjectDirectory -ChildPath $CSProjFileName) -Destination $PublishDirectory;
 
     #update the .csproj file
@@ -192,14 +209,14 @@ Try {
     $UpdatedCSProjFileData.Save("$(Join-Path -Path $PublishDirectory -ChildPath $CSProjFileName)");
 
     #publish the module
-    #Write-Host "Publishing to the PSGallery...";
-    #Publish-Module -Path $PublishDirectory -Repository PSGallery -NuGetApiKey $env:PowerShellGalleryAPIKey;
+    Write-Host "Publishing to the PSGallery...";
+    Publish-Module -Path $PublishDirectory -Repository PSGallery -NuGetApiKey $env:PowerShellGalleryAPIKey;
 
     #overwrite the project's manifest with the updated one from the publish directory (Copy-Item's default behavior is to overwrite files if they already exist in the destination)
-    #Copy-Item -Path (Join-Path $PublishDirectory -ChildPath $ManifestFileName) -Destination $ProjectDirectory;
+    Copy-Item -Path (Join-Path $PublishDirectory -ChildPath $ManifestFileName) -Destination $ProjectDirectory;
 
     #overwrite the project's .csproj file with the updated one from the publish directory (Copy-Item's default behavior is to overwrite files if they already exist in the destination)
-    #Copy-Item -Path (Join-Path -Path $PublishDirectory -ChildPath $CSProjFileName) -Destination $ProjectDirectory;
+    Copy-Item -Path (Join-Path -Path $PublishDirectory -ChildPath $CSProjFileName) -Destination $ProjectDirectory;
 
     Write-Host "";
     Write-Host "Success";
