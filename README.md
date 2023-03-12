@@ -9,6 +9,35 @@ A replacement for PowerShell's [obsolete Send-MailMessage](https://docs.microsof
 **For all users** (requires elevated privileges): ```Install-Module -Name "Send-MailKitMessage" -Scope AllUsers```  
 
 # Usage
+### Basic
+```
+using module Send-MailKitMessage;
+
+#SMTP server ([string], required)
+$SMTPServer = "SMTPServer";
+
+#port ([int], required)
+$Port = PortNumber;
+
+#sender ([MimeKit.MailboxAddress] http://www.mimekit.net/docs/html/T_MimeKit_MailboxAddress.htm, required)
+$From = [MimeKit.MailboxAddress]"SenderEmailAddress";
+
+#recipient list ([MimeKit.InternetAddressList] http://www.mimekit.net/docs/html/T_MimeKit_InternetAddressList.htm, required)
+$RecipientList = [MimeKit.InternetAddressList]::new();
+$RecipientList.Add([MimeKit.InternetAddress]"Recipient1EmailAddress");
+
+#subject ([string], optional)
+$Subject = [string]"Subject";
+
+#text body ([string], optional)
+$TextBody = [string]"TextBody";
+
+#send message
+Send-MailKitMessage -SMTPServer $SMTPServer -Port $Port -From $From -RecipientList $RecipientList -Subject $Subject -TextBody $TextBody;
+
+```
+
+### All Parameters
 
 ```
 using module Send-MailKitMessage;
@@ -40,7 +69,7 @@ $CCList.Add([MimeKit.InternetAddress]"CCRecipient1EmailAddress");
 $BCCList = [MimeKit.InternetAddressList]::new();
 $BCCList.Add([MimeKit.InternetAddress]"BCCRecipient1EmailAddress");
 
-#subject ([string], required)
+#subject ([string], optional)
 $Subject = [string]"Subject";
 
 #text body ([string], optional)
