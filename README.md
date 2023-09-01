@@ -8,9 +8,11 @@ A replacement for PowerShell's [obsolete Send-MailMessage](https://docs.microsof
 
 # <a id="installation" />Installation  
 
-**For current user only** (does not require elevated privileges): ```Install-Module -Name "Send-MailKitMessage" -Scope CurrentUser```  
+**For current user only** (does not require elevated privileges):<br />
+```Install-Module -Name "Send-MailKitMessage" -Scope CurrentUser```  
  
-**For all users** (requires elevated privileges): ```Install-Module -Name "Send-MailKitMessage" -Scope AllUsers```  
+**For all users** (requires elevated privileges):<br />
+```Install-Module -Name "Send-MailKitMessage" -Scope AllUsers```  
 
 # <a id="usage" />Usage
 ### Basic
