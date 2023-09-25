@@ -113,6 +113,12 @@ Send-MailKitMessage @Parameters;
 ```
 
 # <a id="releases" />Releases
+### 3.3.0
+* Fixed authentication issue on Linux systems
+* Updated MailKit to 4.2.0
+* Updated MimeKit to 4.2.0
+* Updated Portable.BouncyCastle to 1.9.0
+* Updated PowerShellStandard.Library to 5.1.1
 
 ### 3.2.0
 
