@@ -156,7 +156,7 @@ namespace Send_MailKitMessage
                 Client.Connect(SMTPServer, Port, (UseSecureConnectionIfAvailable.IsPresent ? MailKit.Security.SecureSocketOptions.Auto : MailKit.Security.SecureSocketOptions.None));
                 if (Credential != null)
                 {
-                    Client.Authenticate(Credential.UserName, (System.Runtime.InteropServices.Marshal.PtrToStringBSTR(System.Runtime.InteropServices.Marshal.SecureStringToBSTR(Credential.Password))));
+                    Client.Authenticate(Credential.UserName, System.Runtime.InteropServices.Marshal.PtrToStringBSTR(System.Runtime.InteropServices.Marshal.SecureStringToBSTR(Credential.Password)));
                 }
 
                 Client.Send(Message);
