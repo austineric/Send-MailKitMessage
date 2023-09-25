@@ -98,14 +98,12 @@ namespace Send_MailKitMessage
         // This method will be called for each input received from the pipeline to this cmdlet; if no input is received, this method is not called
         protected override void ProcessRecord()
         {
-
             MimeMessage Message = new MimeMessage();
             BodyBuilder Body = new BodyBuilder();
             MailKit.Net.Smtp.SmtpClient Client = new MailKit.Net.Smtp.SmtpClient();
 
             try
             {
-
                 //from
                 Message.From.Add(From);
 
@@ -158,14 +156,13 @@ namespace Send_MailKitMessage
                 Client.Connect(SMTPServer, Port, (UseSecureConnectionIfAvailable.IsPresent ? MailKit.Security.SecureSocketOptions.Auto : MailKit.Security.SecureSocketOptions.None));
                 if (Credential != null)
                 {
-                    Client.Authenticate(Credential.UserName, (System.Runtime.InteropServices.Marshal.PtrToStringAuto(System.Runtime.InteropServices.Marshal.SecureStringToBSTR(Credential.Password))));
+                    Client.Authenticate(Credential.UserName, (System.Runtime.InteropServices.Marshal.PtrToStringBSTR(System.Runtime.InteropServices.Marshal.SecureStringToBSTR(Credential.Password))));
                 }
-                Client.Send(Message);
 
+                Client.Send(Message);
             }
             catch (Exception e)
-            {
-                
+            {                
                 throw e;
             }
             finally
