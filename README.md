@@ -2,21 +2,30 @@
 
 A replacement for PowerShell's [obsolete Send-MailMessage](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/send-mailmessage?view=powershell-7.1#description) implementing the [Microsoft-recommended MailKit library](https://docs.microsoft.com/en-us/dotnet/api/system.net.mail.smtpclient?view=net-5.0#remarks).
 
-[Installation](#installation)<br />
-[Usage](#usage)<br />
-[Releases](#releases)<br />
+- [Send-MailKitMessage](#send-mailkitmessage)
+- [Installation](#installation)
+- [Usage](#usage)
+    - [Basic](#basic)
+    - [All Parameters](#all-parameters)
+- [Releases](#releases)
+    - [3.2.0](#320)
+    - [3.2.0-preview1](#320-preview1)
+    - [3.1.0](#310)
+    - [3.0.0](#300)
 
 # <a id="installation" />Installation  
 
 **For current user only** (does not require elevated privileges):<br />
 ```Install-Module -Name "Send-MailKitMessage" -Scope CurrentUser```  
- 
+
 **For all users** (requires elevated privileges):<br />
 ```Install-Module -Name "Send-MailKitMessage" -Scope AllUsers```  
 
 # <a id="usage" />Usage
+
 ### Basic
-```
+
+```powershell
 using module Send-MailKitMessage;
 
 #SMTP server ([string], required)
@@ -45,7 +54,7 @@ Send-MailKitMessage -SMTPServer $SMTPServer -Port $Port -From $From -RecipientLi
 
 ### All Parameters
 
-```
+```powershell
 using module Send-MailKitMessage;
 
 #use secure connection if available ([bool], optional)
@@ -109,21 +118,27 @@ Send-MailKitMessage @Parameters;
 ```
 
 # <a id="releases" />Releases
+
 ### 3.2.0
-* Add support for Windows PowerShell
+
+- Add support for Windows PowerShell
 
 ### 3.2.0-preview1
-* Add support for Windows PowerShell
+
+- Add support for Windows PowerShell
 
 ### 3.1.0
-* Changed UseSecureConnectionIfAvailable parameter type from [bool] to [switch]
+
+- Changed UseSecureConnectionIfAvailable parameter type from [bool] to [switch]
 
 ### 3.0.0
-* Added credential support
-* Added parameter to use secure connection if available
-* Removed extended classes
-* Changed ToList parameter to RecipientList
-* Properly return exceptions from the module to the caller
-* Switched from BouncyCastle to Portable.BouncyCastle
-* Updated MailKit to 2.10.1
-* Updated MimeKit to 2.10.1
+
+- Added credential support
+
+- Added parameter to use secure connection if available
+- Removed extended classes
+- Changed ToList parameter to RecipientList
+- Properly return exceptions from the module to the caller
+- Switched from BouncyCastle to Portable.BouncyCastle
+- Updated MailKit to 2.10.1
+- Updated MimeKit to 2.10.1
