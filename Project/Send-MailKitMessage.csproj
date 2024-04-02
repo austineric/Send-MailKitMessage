@@ -20,8 +20,8 @@
     <None Remove="Send-MailKitMessage.psd1" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MailKit" Version="4.2.0" />
-    <PackageReference Include="MimeKit" Version="4.2.0" />
+    <PackageReference Include="MailKit" Version="4.4.0" />
+    <PackageReference Include="MimeKit" Version="4.4.0" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1">
       <PrivateAssets>All</PrivateAssets>
