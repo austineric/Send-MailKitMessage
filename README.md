@@ -2,16 +2,11 @@
 
 A replacement for PowerShell's [obsolete Send-MailMessage](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/send-mailmessage?view=powershell-7.1#description) implementing the [Microsoft-recommended MailKit library](https://docs.microsoft.com/en-us/dotnet/api/system.net.mail.smtpclient?view=net-5.0#remarks).
 
-- [Send-MailKitMessage](#send-mailkitmessage)
 - [Installation](#installation)
 - [Usage](#usage)
     - [Basic](#basic)
     - [All Parameters](#all-parameters)
 - [Releases](#releases)
-    - [3.2.0](#320)
-    - [3.2.0-preview1](#320-preview1)
-    - [3.1.0](#310)
-    - [3.0.0](#300)
 
 # <a id="installation" />Installation  
 
