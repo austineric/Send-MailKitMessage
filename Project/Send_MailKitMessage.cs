@@ -4,6 +4,7 @@ using System.IO;
 using System.Management.Automation;
 using System.Reflection;
 using System.Web;
+using System.Xml.Linq;
 
 namespace Send_MailKitMessage
 {
@@ -160,7 +161,7 @@ namespace Send_MailKitMessage
                 {
                     Client.Authenticate(Credential.UserName, (System.Runtime.InteropServices.Marshal.PtrToStringAuto(System.Runtime.InteropServices.Marshal.SecureStringToBSTR(Credential.Password))));
                 }
-                Client.Send(Message);
+                WriteObject(Client.Send(Message));
 
             }
             catch (Exception e)
