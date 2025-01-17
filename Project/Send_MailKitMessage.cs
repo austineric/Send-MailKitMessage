@@ -89,6 +89,10 @@ namespace Send_MailKitMessage
             Mandatory = false)]
         public string[] AttachmentList { get; set; }
 
+        [Parameter(
+            Mandatory = false)]
+        public string OutMessageVariable { get; set; }
+
         // This method gets called once for each cmdlet in the pipeline when the pipeline starts executing
         protected override void BeginProcessing()
         {
@@ -161,6 +165,12 @@ namespace Send_MailKitMessage
                     Client.Authenticate(Credential.UserName, (System.Runtime.InteropServices.Marshal.PtrToStringAuto(System.Runtime.InteropServices.Marshal.SecureStringToBSTR(Credential.Password))));
                 }
                 Client.Send(Message);
+
+                //output
+                if (!string.IsNullOrWhiteSpace(OutMessageVariable))
+                {
+                    this.SessionState.PSVariable.Set(OutMessageVariable, Message);
+                }
 
             }
             catch (Exception e)
